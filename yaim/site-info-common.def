@@ -1,0 +1,6 @@
+SITE_NAME=GRID-SITE
+
+BDII_HOST=bdii.`hostname -d`
+PX_HOST=px.`hostname -d`
+
+VOS="dteam ops ops.vo.ibergrid.eu"
