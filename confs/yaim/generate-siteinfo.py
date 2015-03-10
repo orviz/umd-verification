@@ -14,7 +14,7 @@ NODE_TYPE_MAP = {
 SITE_INFO_MAP = {
     # cream
     "emi-cream-ce": "site-info-creamCE.def",
-    "emi-ge-utils": "site-info-creamCE.def",
+    "emi-ge-utils": "site-info-SGE_utils.def",
     # ui
     "emi-ui": "site-info-UI.def",
 }
