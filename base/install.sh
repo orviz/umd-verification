@@ -1,4 +1,4 @@
-if ! options=$(getopt -o '' -l install -- "$@")
+if ! options=$(getopt -o '' -l install,upgrade -- "$@")
 then
     # something went wrong, getopt will put out an error message for us
     exit 1
@@ -21,8 +21,8 @@ done
 
 [ $action == "none" ] && exit 0
 
-if [ $action == "install" ]; then
-    echo ">> From scratch installation of $METAPACKAGE"
+if [ $action == "upgrade" ]; then
+    echo ">> Upgrade testing of $METAPACKAGE installation"
 
     # Install base system
     /usr/bin/yum -y remove epel-release* umd-release*
@@ -37,7 +37,7 @@ if [ $action == "install" ]; then
     /usr/bin/yum -y install /tmp/`basename $UMD_RELEASE_RPM_URL`
 
     /usr/bin/yum -y install $METAPACKAGE
-
+    
     # Additional packages
     for metapkg in $METAPACKAGE ; do
         [ $metapkg == "emi-cream-ce" ] && ADD_PKGS="sudo"
@@ -48,4 +48,9 @@ fi
 # Install verification stuff
 echo ">> Installing verification stuff from $REPOSITORY_URL"
 /usr/bin/wget $REPOSITORY_URL -O /etc/yum.repos.d/`basename $REPOSITORY_URL`
-/usr/bin/yum -y update
+
+if [ $action == "upgrade" ]; then
+    /usr/bin/yum -y update
+elif [ $action == "install" ]; then
+    /usr/bin/yum -y install $METAPACKAGE
+fi
