@@ -9,6 +9,10 @@ NODE_TYPE_MAP = {
     "emi-cream-ce": "creamCE",
     "emi-ge-utils": "SGE_utils",
     "emi-ui": "UI",
+    "emi-storm-backend-mp": "se_storm_backend",
+    "emi-storm-frontend-mp": "se_storm_frontend",
+    "emi-storm-globus-gridftp-mp": "se_storm_gridftp",
+    "emi-storm-gridhttps-mp": "se_storm_gridhttps",
 }
 
 SITE_INFO_MAP = {
@@ -17,10 +21,16 @@ SITE_INFO_MAP = {
     "emi-ge-utils": "site-info-SGE_utils.def",
     # ui
     "emi-ui": "site-info-UI.def",
+    # storm
+    "emi-storm-backend-mp": "site-info-storm.def",
+    "emi-storm-frontend-mp": "site-info-storm.def",
+    "emi-storm-globus-gridftp-mp": "site-info-storm.def",
+    "emi-storm-gridhttps-mp": "site-info-storm.def",
 }
 
 CERT_NODE_TYPES = [
     "emi-cream-ce",
+    "emi-storm-frontend",
 ]
 
 
@@ -42,17 +52,17 @@ if args.node_types:
     for product in args.umd_products:
         print args.node_types[product]
 elif args.requires_cert:
-    r=0
+    r = 0
     for product in args.umd_products:
         if product in CERT_NODE_TYPES:
-            r=1
+            r = 1
             break
     print r
 else:
     fname = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                             "site-info.def")
+                         "site-info.def")
     f = open(fname, "w")
     for siteinfo in set([SITE_INFO_MAP[product]
-                            for product in args.umd_products]):
+                         for product in args.umd_products]):
         f.write("source %s\n" % siteinfo)
     f.close()
