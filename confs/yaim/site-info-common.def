@@ -1,6 +1,8 @@
 GROUPS_CONF=groups.conf
 USERS_CONF=`pwd`/users.conf
 
+WN_LIST=`pwd`/wn-list
+
 SITE_NAME=GRID-SITE
 
 BDII_HOST=bdii.`hostname -d`
