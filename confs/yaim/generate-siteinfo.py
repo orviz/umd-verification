@@ -13,6 +13,7 @@ NODE_TYPE_MAP = {
     "emi-storm-frontend-mp": "se_storm_frontend",
     "emi-storm-globus-gridftp-mp": "se_storm_gridftp",
     "emi-storm-gridhttps-mp": "se_storm_gridhttps",
+    "storm-webdav": "se_storm_webdav",
 }
 
 SITE_INFO_MAP = {
@@ -26,6 +27,7 @@ SITE_INFO_MAP = {
     "emi-storm-frontend-mp": "site-info-storm.def",
     "emi-storm-globus-gridftp-mp": "site-info-storm.def",
     "emi-storm-gridhttps-mp": "site-info-storm.def",
+    "storm-webdav": "site-info-storm.def",
 }
 
 CERT_NODE_TYPES = [
