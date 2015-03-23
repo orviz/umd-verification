@@ -1,5 +1,5 @@
-from fabric.api import run
+from fabric.api import local
 
 
-def yum(action, *pkgs):
-    run("yum -y %s %s" % (action, " ".join(pkgs)))
+def yum(action, pkgs):
+    local("yum -y %s %s" % (action, " ".join(pkgs)))

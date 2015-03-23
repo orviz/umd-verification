@@ -1,3 +1,1 @@
-from umd.products.creamce import CreamCEInstallation
-
-kk = CreamCEInstallation()
+from umd.products.creamce import *

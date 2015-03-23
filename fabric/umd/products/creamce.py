@@ -9,8 +9,12 @@ class CreamCEInstallation(Install):
     """
     Standalone CREAM CE deployment.
     """
-    name = "creamce-standalone"
-    metapkgs = "emi-cream-ce"
+    def __init__(self, name, metapkgs):
+	self.name = name
+	self.metapkgs = metapkgs
+
+
+standalone = CreamCEInstallation(name="creamce-standalone", metapkgs="emi-cream-ce")
 
 
 #class CreamCEConfiguration(Configure):
