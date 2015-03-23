@@ -1,5 +1,5 @@
 
-from fabric.api import run
+from fabric.api import local
 from fabric.colors import green,yellow
 from fabric.tasks import Task
 
