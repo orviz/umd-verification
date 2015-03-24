@@ -1,4 +1,5 @@
-from fabric.colors import green,yellow
+from fabric.colors import green
+from fabric.colors import yellow
 from umd.base import Deploy
 
 
@@ -15,8 +16,8 @@ class StandaloneDeploy(Deploy):
 
 
 standalone = StandaloneDeploy(
-    name = "creamce-standalone",
-    metapkg = "emi-cream-ce",
-    nodetype = "creamCE",
-    siteinfo = ["site-info-creamCE.def",
-                "site-info-SGE_utils.def"])
+    name="creamce-standalone",
+    metapkg="emi-cream-ce",
+    nodetype="creamCE",
+    siteinfo=["site-info-creamCE.def",
+              "site-info-SGE_utils.def"])
