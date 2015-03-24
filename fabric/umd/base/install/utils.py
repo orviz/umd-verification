@@ -3,7 +3,7 @@ from fabric.api import local
 from umd import exception
 from umd.base import utils as base_utils
 
-def yum(action, pkgs):
+def yum(action, pkgs=None):
     if pkgs:
         local("yum -y %s %s" % (action, " ".join(pkgs)))
     else:
@@ -40,11 +40,14 @@ class PkgTool(object):
     def remove(self, pkgs):
         self._exec(action="remove", pkgs=pkgs)
 
-    def update(self, pkgs):
+    def update(self):
         self._exec(action="update")
 
-    def _exec(self, action, pkgs):
+    def _exec(self, action, pkgs=None):
         try:
-            return self.PKGTOOL[self.os](action, base_utils.to_list(pkgs))
+            if pkgs:
+                return self.PKGTOOL[self.os](action, base_utils.to_list(pkgs))
+            else:
+                return self.PKGTOOL[self.os](action)
         except KeyError:
             raise exception.InstallException("'%s' OS not supported" % self.os)
