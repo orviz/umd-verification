@@ -8,7 +8,7 @@ class StandaloneDeploy(Deploy):
     def pre_config(self):
         print(yellow("PRE-config actions."))
 
-        self.pkgtool(action="install", pkgs="sudo")
+        self.pkgtool.install(pkgs="sudo")
 
         print(green("<sudo> package installed."))
         print(yellow("END of PRE-config actions."))
