@@ -1,25 +1,22 @@
 from fabric.colors import green,yellow
-from fabric.tasks import Task
-
-from umd.base.configure import Configure
-from umd.base.install import Install
+from umd.base import Deploy
 
 
-class CreamCEInstallation(Install):
-    """
-    Standalone CREAM CE deployment.
-    """
-    def __init__(self, name, metapkgs):
-	self.name = name
-	self.metapkgs = metapkgs
+class StandaloneDeploy(Deploy):
+    """CREAM CE standalone deployment (configuration via Yaim)."""
+
+    def pre_config(self):
+        print(yellow("PRE-config actions."))
+
+        self.pkgtool(action="install", pkgs="sudo")
+
+        print(green("<sudo> package installed."))
+        print(yellow("END of PRE-config actions."))
 
 
-standalone = CreamCEInstallation(name="creamce-standalone", metapkgs="emi-cream-ce")
-
-
-#class CreamCEConfiguration(Configure):
-#    def pre(self):
-#        print(yellow("PRE-config actions."))
-#        do_pkg(action="install", pkgs="sudo")
-#        print(green("<sudo> package installed."))
-#        print(yellow("END of PRE-config actions."))
+standalone = StandaloneDeploy(
+    name = "creamce-standalone",
+    metapkg = "emi-cream-ce",
+    nodetype = "creamCE",
+    siteinfo = ["site-info-creamCE.def",
+                "site-info-SGE_utils.def"])

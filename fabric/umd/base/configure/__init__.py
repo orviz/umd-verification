@@ -1,22 +1,35 @@
 
 from fabric.api import local
 from fabric.colors import green,yellow
-from fabric.tasks import Task
+from fabric.context_managers import lcd,prefix
 
-from umd.base.install.utils import yum
+from tempfile import NamedTemporaryFile
 
+from umd.base import utils as base_utils
+from umd.base.configure import utils as conf_utils
 
-class Configure(Task):
-    """
-    Base class for configuring UMD products.
-    """
-    def run(self, *args, **kwargs):
-        self.pre()
+class YaimConfig(object):
+    def __init__(self, nodetype, siteinfo):
+	self.nodetype = nodetype
+	self.siteinfo = siteinfo
 
-        self.post()
+    def run(self, config_path):
+        self.nodetype = base_utils.to_list(self.nodetype)
+        self.siteinfo = base_utils.to_list(self.siteinfo)
 
-    def pre(self):
-        pass
+        with NamedTemporaryFile("w+t", dir=config_path, delete=True) as f:
+            if conf_utils.generate_cert(self.nodetype):
+                print(yellow("Certificate issued for nodetype/s '%s'" % self.nodetype))
 
-    def post(self):
-        pass
+            for si in self.siteinfo:
+                f.write("source %s\n" % si)
+            f.flush()
+
+            print(green("Creating temporary file '%s' with content:" % f.name))
+            local("cat %s" % f.name)
+
+            with lcd(config_path):
+                with prefix("source %s" % f.name):
+                    local("/opt/glite/yaim/bin/yaim -c -s %s -n %s"
+                            % (f.name,
+                               " -n ".join(self.nodetype)))
