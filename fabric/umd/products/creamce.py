@@ -20,4 +20,5 @@ standalone = StandaloneDeploy(
     metapkg="emi-cream-ce",
     nodetype="creamCE",
     siteinfo=["site-info-creamCE.def",
-              "site-info-SGE_utils.def"])
+              "site-info-SGE_utils.def"],
+    )

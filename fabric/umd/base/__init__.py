@@ -33,13 +33,22 @@ class Deploy(Task):
     def post_config(self):
         pass
 
+    def pre_validate(self):
+        pass
+
+    def post_validate(self):
+        pass
+
     def _install(self, *args, **kwargs):
         Install(self.pkgtool,
                 self.metapkg).run(*args, **kwargs)
 
-    def _config(self, config_path):
+    def _config(self, *args, **kwargs):
         YaimConfig(self.nodetype,
-                   self.siteinfo).run(config_path)
+                   self.siteinfo).run(*args, **kwargs)
+
+    def _validate(self, *args, **kwargs):
+        pass
 
     def run(self,
             installation_type,
@@ -47,7 +56,8 @@ class Deploy(Task):
             repository_url,
             epel_release=None,
             umd_release=None,
-            yaim_config_path="etc/yaim/"):
+            yaim_config_path="etc/yaim/",
+            validate_config_path="bin/"):
         """Runs base deployment.
 
         Command-line parameters:
@@ -77,3 +87,7 @@ class Deploy(Task):
         self.pre_config()
         self._config(yaim_config_path)
         self.post_config()
+
+        self.pre_validate()
+        self._validate(validate_config_path)
+        self.post_validate()
