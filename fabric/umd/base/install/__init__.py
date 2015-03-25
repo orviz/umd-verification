@@ -34,22 +34,6 @@ class Install(object):
                 shutil.copy2(f, repopath)
                 print(yellow("Repository file '%s' now available." % f))
 
-    def do_install_base(self):
-        """Installs UMD base product."""
-        pass
-
-    def do_verify(self, action, repository_url):
-        """Performs UMD verification installation."""
-        self._enable_repo(repository_url)
-
-        if action == "update":
-            self.pkgtool.update()
-        elif action == "install":
-            self.pkgtool.install(self.metapkg)
-        else:
-            raise exception.InstallException(("Installation type '%s' "
-                                              "not implemented."))
-
     def run(self,
             installation_type,
             repository_url,
@@ -66,7 +50,6 @@ class Install(object):
                 epel_release_url: EPEL release (URL).
                 umd_release_url : UMD release (URL).
         """
-
         self.pkgtool.remove(pkgs=["epel-release*", "umd-release*"])
         local("/bin/rm -f /etc/yum.repos.d/UMD-* /etc/yum.repos.d/epel-*")
         print(green("Purged any previous EPEL or UMD repository file."))
@@ -82,8 +65,17 @@ class Install(object):
         self.pkgtool.install(pkgs=["yum-priorities"])
         print(green("'yum-priorities' (UMD) requirement installed."))
 
-        print(green("Installing UMD product/s: %s." % self.metapkg))
-        self.pkgtool.install(pkgs=[self.metapkg])
-        print(green("UMD product/s installation finished."))
+        if installation_type == "update":
+            print(green("Installing UMD product/s: %s." % self.metapkg))
+            self.pkgtool.install(pkgs=[self.metapkg])
+            print(green("UMD product/s installation finished."))
 
-        self.do_verify(installation_type, repository_url)
+            self._enable_repo(repository_url)
+            self.pkgtool.update()
+        elif installation_type == "install":
+            self._enable_repo(repository_url)
+            self.pkgtool.install(self.metapkg)
+        else:
+            raise exception.InstallException(("Installation type '%s' "
+                                              "not implemented."
+                                              % installation_type))
