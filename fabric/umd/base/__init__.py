@@ -1,9 +1,8 @@
 
 from fabric.tasks import Task
-
+from umd.base.configure import YaimConfig
 from umd.base.install import Install
 from umd.base.install import utils as inst_utils
-from umd.base.configure import YaimConfig
 
 
 class Deploy(Task):
@@ -21,9 +20,6 @@ class Deploy(Task):
         self.siteinfo = siteinfo
         self.os = None
         self.pkgtool = None
-
-    #def pkgtool(self, action, pkgs):
-    #    inst_utils.do_pkgtool(self.os, action, pkgs)
 
     def pre_install(self):
         pass
@@ -52,8 +48,7 @@ class Deploy(Task):
             epel_release=None,
             umd_release=None,
             yaim_config_path="etc/yaim/"):
-        """
-        Runs base deployment.
+        """Runs base deployment.
 
         Command-line parameters:
             installation_type

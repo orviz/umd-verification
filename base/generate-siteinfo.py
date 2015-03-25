@@ -2,7 +2,6 @@
 
 import argparse
 import os.path
-import sys
 
 
 NODE_TYPE_MAP = {
@@ -52,14 +51,14 @@ args = parser.parse_args()
 
 if args.node_types:
     for product in args.umd_products:
-        print args.node_types[product]
+        print(args.node_types[product])
 elif args.requires_cert:
     r = 0
     for product in args.umd_products:
         if product in CERT_NODE_TYPES:
             r = 1
             break
-    print r
+    print(r)
 else:
     fname = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                          "site-info.def")

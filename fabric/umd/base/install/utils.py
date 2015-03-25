@@ -1,7 +1,7 @@
 from fabric.api import local
-
-from umd import exception
 from umd.base import utils as base_utils
+from umd import exception
+
 
 def yum(action, pkgs=None):
     if pkgs:
@@ -9,16 +9,6 @@ def yum(action, pkgs=None):
     else:
         local("yum -y %s" % action)
 
-
-def do_pkgtool(os, action, pkgs):
-    PKGTOOL = {
-        "sl5": yum,
-    }
-
-    try:
-        return PKGTOOL[os](action, base_utils.to_list(pkgs))
-    except KeyError:
-        raise exception.InstallException("'%s' OS not supported" % os)
 
 class PkgTool(object):
     PKGTOOL = {

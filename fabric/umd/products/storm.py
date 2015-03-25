@@ -1,12 +1,10 @@
-from fabric.colors import green, yellow
-
+from fabric.colors import green
+from fabric.colors import yellow
 from umd.base import Deploy
 
 
 class StormSL5Deploy(Deploy):
-    """
-    Single-node Storm deployment.
-    """
+    """Single-node Storm deployment."""
     def pre_config(self):
         print(yellow("PRE-config actions."))
 
