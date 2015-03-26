@@ -2,22 +2,39 @@
 from fabric.tasks import Task
 from umd.base.configure import YaimConfig
 from umd.base.install import Install
+from umd.base.validate import Validate
 from umd.base.install import utils as inst_utils
 
 
 class Deploy(Task):
     """Base class for UMD deployments."""
-    def __init__(self, name, metapkg=[], nodetype=[], siteinfo=[]):
+    def __init__(self,
+                 name,
+                 metapkg=[],
+                 nodetype=[],
+                 siteinfo=[],
+                 validate_path=None):
         """Arguments:
                 name: Fabric command name.
                 metapkg: list of UMD metapackages to install.
                 nodetype: list of YAIM nodetypes to be configured.
                 siteinfo: list of site-info files to be used.
+                validate_path: path pointing to validate checks.
+                    - Accepts both file and directory specification.
+                        1) File: with optional arguments in case the check
+                                 needs them. In this case the format is a
+                                 tuple/list with the check name as the 1st
+                                 element and the argument string as the 2nd
+                                 element.
+                        2) Directory: runs all the executable files located
+                                      under it, no matter its depth in the
+                                      hierarchy (no arguments accepted).
         """
         self.name = name
         self.metapkg = metapkg
         self.nodetype = nodetype
         self.siteinfo = siteinfo
+        self.validate_path = validate_path
         self.os = None
         self.pkgtool = None
 
@@ -47,8 +64,8 @@ class Deploy(Task):
         YaimConfig(self.nodetype,
                    self.siteinfo).run(*args, **kwargs)
 
-    def _validate(self, *args, **kwargs):
-        pass
+    def _validate(self):
+        Validate().run(self.validate_path)
 
     def run(self,
             installation_type,
@@ -56,8 +73,7 @@ class Deploy(Task):
             repository_url,
             epel_release=None,
             umd_release=None,
-            yaim_config_path="etc/yaim/",
-            validate_config_path="bin/"):
+            yaim_config_path="etc/yaim/"):
         """Runs base deployment.
 
         Command-line parameters:
@@ -88,6 +104,7 @@ class Deploy(Task):
         self._config(yaim_config_path)
         self.post_config()
 
-        self.pre_validate()
-        self._validate(validate_config_path)
-        self.post_validate()
+        if self.validate_path:
+            self.pre_validate()
+            self._validate()
+            self.post_validate()

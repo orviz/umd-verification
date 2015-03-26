@@ -5,3 +5,7 @@ class InstallException(Exception):
 
 class ConfigException(Exception):
     pass
+
+
+class ValidateException(Exception):
+    pass
