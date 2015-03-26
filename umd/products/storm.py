@@ -19,9 +19,12 @@ class StormSL5Deploy(Deploy):
     def pre_config(self):
         print(yellow("PRE-config actions."))
 
-        self.pkgtool.install(pkgs="ntp")
+        self.pkgtool.install(pkgs=["ntp", "ca-policy-egi-core"])
+        print(green("<ntp, ca-policy-egi-core> installed."))
 
-        print(green("<ntp> package installed."))
+        local("mount -o remount,acl,user_xattr /")
+        print(green("Enabled ACLs and Extended Attribute Support in /"))
+
         print(yellow("END of PRE-config actions."))
 
 
