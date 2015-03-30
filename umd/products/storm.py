@@ -20,4 +20,5 @@ sl5 = StormSL5Deploy(
              "emi-storm-globus-gridftp-mp emi-storm-gridhttps-mp"),
     nodetype=("se_storm_backend se_storm_frontend se_storm_gridftp "
               "se_storm_gridhttps"),
-    siteinfo = ["site-info-storm.def"])
+    siteinfo = ["site-info-storm.def"],
+    need_cert=True)

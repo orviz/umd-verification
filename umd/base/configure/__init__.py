@@ -23,10 +23,6 @@ class YaimConfig(object):
         with tempfile.NamedTemporaryFile("w+t",
                                          dir=config_path,
                                          delete=True) as f:
-            if conf_utils.generate_cert(self.nodetype):
-                print(yellow("Certificate issued for nodetype/s '%s'"
-                             % self.nodetype))
-
             for si in self.siteinfo:
                 f.write("source %s\n" % si)
             f.flush()

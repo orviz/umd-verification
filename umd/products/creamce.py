@@ -18,6 +18,7 @@ class StandaloneDeploy(Deploy):
 standalone = StandaloneDeploy(
     name="creamce-standalone",
     metapkg="emi-cream-ce",
+    need_cert=True,
     nodetype="creamCE",
     siteinfo=["site-info-creamCE.def",
               "site-info-SGE_utils.def"],
