@@ -1,9 +1,11 @@
 
 from fabric.tasks import Task
+
 from umd.base.configure import YaimConfig
 from umd.base.install import Install
-from umd.base.validate import Validate
 from umd.base.install import utils as inst_utils
+from umd.base import utils
+from umd.base.validate import Validate
 
 
 class Deploy(Task):
@@ -11,12 +13,14 @@ class Deploy(Task):
     def __init__(self,
                  name,
                  metapkg=[],
+                 need_cert=False,
                  nodetype=[],
                  siteinfo=[],
                  validate_path=None):
         """Arguments:
                 name: Fabric command name.
                 metapkg: list of UMD metapackages to install.
+                need_cert: whether installation type requires a signed cert.
                 nodetype: list of YAIM nodetypes to be configured.
                 siteinfo: list of site-info files to be used.
                 validate_path: path pointing to validate checks.
@@ -32,6 +36,7 @@ class Deploy(Task):
         """
         self.name = name
         self.metapkg = metapkg
+        self.need_cert = need_cert
         self.nodetype = nodetype
         self.siteinfo = siteinfo
         self.validate_path = validate_path
@@ -99,6 +104,16 @@ class Deploy(Task):
                       epel_release,
                       umd_release)
         self.post_install()
+
+        if self.need_cert:
+            self.pkgtool.install(pkgs="ca-policy-egi-core")
+            ca = utils.OwnCA(
+                    domain_comp_country="es",
+                    domain_comp="UMDverification",
+                    common_name="UMDVerificationOwnCA")
+            ca.create(trusted_ca_dir="/etc/grid-security/certificates")
+            ca.issue_cert(key_prv="/etc/grid-security/hostkey.pem",
+                          key_pub="/etc/grid-security/hostcert.pem")
 
         self.pre_config()
         self._config(yaim_config_path)

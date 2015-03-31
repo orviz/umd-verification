@@ -5,6 +5,7 @@ import shutil
 from fabric.api import local
 from fabric.colors import green
 from fabric.colors import yellow
+
 from umd import exception
 
 
@@ -16,7 +17,7 @@ class Install(object):
     def _get_pkg(self, url, download_path="/tmp"):
         pkg_base = os.path.basename(url)
         pkg_loc = os.path.join(download_path, pkg_base)
-        local("/usr/bin/wget %s -O %s" % (url, pkg_loc))
+        local("wget %s -O %s" % (url, pkg_loc))
         return pkg_loc
 
     def _enable_repo(self, repo_url, download_dir="/tmp/repofiles"):
