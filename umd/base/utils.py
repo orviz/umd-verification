@@ -46,7 +46,7 @@ class OwnCA(object):
                 hash = local("openssl x509 -noout -hash -in ca.pem",
                              capture=True)
                 local("cp ca.pem %s" % os.path.join(trusted_ca_dir,
-                                                    '.'.join([hash, '0']))
+                                                    '.'.join([hash, '0'])))
                 with open(os.path.join(trusted_ca_dir,
                                        '.'.join([hash,
                                                  "signing_policy"])), 'w') as f:
