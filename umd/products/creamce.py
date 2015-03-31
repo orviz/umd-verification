@@ -22,5 +22,7 @@ standalone = StandaloneDeploy(
     nodetype="creamCE",
     siteinfo=["site-info-creamCE.def",
               "site-info-SGE_utils.def"],
-    validate_path=["bin/cream/", ("bin/certs/check-cert",
-                                  "/etc/grid-security/hostcert.pem")])
+    validate_path=["bin/cream/",
+                   ("bin/certs/check-cert": {
+                       user: "umd",
+                       args: "/etc/grid-security/hostcert.pem"})])

@@ -7,7 +7,6 @@ from fabric.context_managers import prefix
 
 import tempfile
 
-from umd.base.configure import utils as conf_utils
 from umd.base import utils as base_utils
 
 

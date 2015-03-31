@@ -1,5 +1,8 @@
 
+import collections
+import getpass
 import os
+import pwd
 
 from fabric.api import local
 from fabric.colors import red
@@ -20,31 +23,62 @@ class Validate(object):
 
         return is_executable
 
+    def _handle_user(self, user):
+        try:
+            pwd.getpwnam(user)
+        except KeyError:
+            local("useradd -m %s" % user)
+
+    def _get_files_from_dir(self, dir):
+        l = []
+        for root, dirs, files in os.walk(dir):
+            for f in files:
+                l.append(os.path.join(root, f))
+        return l
+
     def run(self, bin_path):
-        checklist = []
+        """Executes the checks received.
+
+            bin_path: list of files or directories where the checks are stored.
+                      It also allows a tuple/list with the following format:
+                        - list[0]: name of the file/directory.
+                        - list[1]: dictionary with the metadata. Currently only
+                                   'user' and 'args' are considered.
+        """
+        l = []
 
         bin_path = base_utils.to_list(bin_path)
         for path in bin_path:
             if isinstance(path, (tuple, list)):
                 try:
-                    fname, args_str = path
+                    f, meta = path
                 except IndexError:
                     raise exception.ValidateException(("Malformed check "
                                                        "syntax: name: '%s'; "
                                                        "args: '%s'."
                                                        % (path[0], path[1:])))
-                if self._is_executable(fname):
-                    checklist.append(" ".join(path))
+
+                if isinstance(meta, dict):
+                    d = collections.defaultdict(str)
+                    for k,v in meta.items():
+                        d[k] = v
+                    l.append((d["user"], f, d["args"]))
             else:
-                if os.path.isdir(path):
-                    for root, dirs, files in os.walk(path):
-                        for f in files:
-                            fname = os.path.join(root, f)
-                            if self._is_executable(fname):
-                                checklist.append(fname)
-                elif os.path.isfile(path) and self._is_executable(path):
-                    checklist.append(path)
+                l.append((getpass.getuser(), path, ""))
+
+        checklist = []
+        for check in l:
+            user, path, args = check
+            if os.path.isdir(path):
+                for f in self._get_files_from_dir(path):
+                    checklist.append(user, f, args)
+            elif os.path.isfile(path):
+                checklist.append(check)
 
         for check in checklist:
-            print(yellow("Running check '%s'" % check))
-            local("./%s" % check)
+            user, f, args = check
+            self._handle_user(user)
+            if self._is_executable(f):
+                cmd = "./%s" % " ".join([check, args])
+                print(yellow("Running check '%s' as user '%s'" % (cmd, user)))
+                local("su %s -c '%s'" % (user, cmd))
