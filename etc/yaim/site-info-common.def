@@ -1,3 +1,5 @@
+YAIM_LOGGING_LEVEL=ERROR
+
 GROUPS_CONF=groups.conf
 USERS_CONF=`pwd`/users.conf
 
@@ -22,4 +24,3 @@ VO_SW_DIR="/opt/exp_soft"
 DTEAM_GROUP_ENABLE="dteam"
 OPS_GROUP_ENABLE="ops"
 IBEROPS_GROUP_ENABLE="ops.vo.ibergrid.eu"
-
