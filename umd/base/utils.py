@@ -49,12 +49,16 @@ class OwnCA(object):
                              capture=True)
                 local("cp ca.pem %s" % os.path.join(trusted_ca_dir,
                                                     '.'.join([hash, '0'])))
-                with open(os.path.join(trusted_ca_dir,
-                                       '.'.join([hash,
-                                                 "signing_policy"])), 'w') as f:
-                    f.writelines(["access_id_CA\tX509\t'%s'\n" % subject,
-                                  "pos_rights\tglobus\tCA:sign\n",
-                                  "cond_subjects\tglobus\t'\"/DC=%s/DC=%s/*\"'\n"])
+                with open(os.path.join(
+                            trusted_ca_dir,
+                            '.'.join([hash,
+                                      "signing_policy"])), 'w') as f:
+                    f.writelines(["
+                            access_id_CA\tX509\t'%s'\n" % subject,
+                            "pos_rights\tglobus\tCA:sign\n",
+                            "cond_subjects\tglobus\t'\"/DC=%s/DC=%s/*\"'\n"
+                                % (self.domain_comp_country,
+                                   self.domain_comp)])
 
     def issue_cert(self,
                    hostname=socket.getfqdn(),
