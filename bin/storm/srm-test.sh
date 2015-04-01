@@ -141,11 +141,11 @@ if [ $GSIFTP_SUPPORT -eq 1 ] ; then
         echo "** Testing gsiftp PUT support"
         put_file gsiftp $SRM_URI/$VO/$DIR/test_file00.txt $TEST_FILE
 fi
-#if [ $HTTPS_SUPPORT -eq 1 ] ; then
-#        echo ""
-#        echo "** Testing https PUT support"
-#        put_file https $SRM_URI/$VO/$DIR/test_file02.txt $TEST_FILE
-#fi
+if [ $HTTPS_SUPPORT -eq 1 ] ; then
+        echo ""
+        echo "** Testing https PUT support"
+        put_file https $SRM_URI/$VO/$DIR/test_file02.txt $TEST_FILE
+fi
 
 
 executeSRM clientSRM mv -e $STORM_FE -s $SRM_URI/$VO/$DIR/test_file00.txt -t $SRM_URI/$VO/$DIR/test_file01.txt
@@ -156,12 +156,12 @@ if [ $GSIFTP_SUPPORT -eq 1 ] ; then
         get_file gsiftp $SRM_URI/$VO/$DIR/test_file01.txt $TEST_FILE
 fi
 
-#if [ $HTTPS_SUPPORT -eq 1 ] ; then
-#        echo ""
-#        echo "** Testing https GET support"
-#        get_file https $SRM_URI/$VO/$DIR/test_file02.txt $TEST_FILE
-#        executeSRM clientSRM rm -e $STORM_FE -s $SRM_URI/$VO/$DIR/test_file02.txt
-#fi
+if [ $HTTPS_SUPPORT -eq 1 ] ; then
+        echo ""
+        echo "** Testing https GET support"
+        get_file https $SRM_URI/$VO/$DIR/test_file02.txt $TEST_FILE
+        executeSRM clientSRM rm -e $STORM_FE -s $SRM_URI/$VO/$DIR/test_file02.txt
+fi
 
 
 executeSRM clientSRM rm -e $STORM_FE -s $SRM_URI/$VO/$DIR/test_file01.txt
