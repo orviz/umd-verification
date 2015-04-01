@@ -12,6 +12,7 @@ class Deploy(Task):
     """Base class for UMD deployments."""
     def __init__(self,
                  name,
+                 doc=None,
                  metapkg=[],
                  need_cert=False,
                  nodetype=[],
@@ -35,6 +36,8 @@ class Deploy(Task):
                                       hierarchy (no arguments accepted).
         """
         self.name = name
+        if doc:
+            self.__doc__ = doc
         self.metapkg = metapkg
         self.need_cert = need_cert
         self.nodetype = nodetype
