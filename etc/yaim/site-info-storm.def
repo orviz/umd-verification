@@ -34,13 +34,16 @@ STORM_BE_XMLRPC_TOKEN="q234tlgdfkGHw34a34aIOJdsf45nB567erq085--3DF54t"
 #####
 
 #####
-#https service is deprecated, now using webdav (only in SL6!)
+#https service is deprecated in SL6
+# should be moved to webdav
 STORM_INFO_HTTP_SUPPORT=true
 STORM_INFO_HTTPS_SUPPORT=true
 STORM_GRIDHTTPS_ENABLED=true
 STORM_GRIDHTTPS_PLUGIN_CLASSNAME=it.grid.storm.https.GhttpsHTTPSPluginInterface
-STORM_GRIDHTTPS_SERVER_USER_UID=`id -u gridhttps`
-STORM_GRIDHTTPS_SERVER_GROUP_UID=`id -g gridhttps`
+STORM_GRIDHTTPS_USER=storm
+STORM_GRIDHTTPS_SERVER_USER_UID=`id -u storm`
+STORM_GRIDHTTPS_SERVER_GROUP_UID=`id -g storm`
+
 #####
 
 ####
