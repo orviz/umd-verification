@@ -3,6 +3,7 @@ import os.path
 import socket
 
 from fabric.api import local
+from fabric.context_managers import lcd
 
 from umd import exception
 

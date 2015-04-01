@@ -1,7 +1,6 @@
 
 from fabric.api import local
 from fabric.colors import green
-from fabric.colors import yellow
 from fabric.context_managers import lcd
 from fabric.context_managers import prefix
 

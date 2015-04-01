@@ -1,5 +1,6 @@
 from fabric.colors import green
 from fabric.colors import yellow
+
 from umd.base import Deploy
 
 
@@ -18,7 +19,7 @@ sl5 = StormSL5Deploy(
     name="storm-sl5",
     metapkg=("emi-storm-backend-mp emi-storm-frontend-mp "
              "emi-storm-globus-gridftp-mp emi-storm-gridhttps-mp"),
+    need_cert=True,
     nodetype=("se_storm_backend se_storm_frontend se_storm_gridftp "
               "se_storm_gridhttps"),
-    siteinfo = ["site-info-storm.def"],
-    need_cert=True)
+    siteinfo = ["site-info-storm.def"],)
