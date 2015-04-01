@@ -71,7 +71,7 @@ class Validate(object):
             user, path, args = check
             if os.path.isdir(path):
                 for f in self._get_files_from_dir(path):
-                    checklist.append(user, f, args)
+                    checklist.append((user, f, args))
             elif os.path.isfile(path):
                 checklist.append(check)
 
