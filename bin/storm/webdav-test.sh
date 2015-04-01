@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash 
 
 # XXX: this is hardcoded: port and /webdav # if we want to use this
 # for other SEs it must be defined differently
@@ -27,7 +27,7 @@ EOF
 
 execute() {
         echo ">> Executing $@"
-        eval $@ 2>&1 > $STDOUT 2>&1
+        "$@" 2>&1 > $STDOUT 2>&1
         if [ $? -ne 0 ] ; then
                 echo "[ERROR]"
                 cat $STDOUT

@@ -173,7 +173,3 @@ echo ""
 echo "<< All tests succeded!"
 
 rm $STDOUT
-
-
-
-#. shunit2
