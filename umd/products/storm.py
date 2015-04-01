@@ -10,8 +10,7 @@ class StormSL5Deploy(Deploy):
     def pre_install(self):
         print(yellow("PRE-install actions."))
 
-        #local("/usr/sbin/adduser -M storm")
-        #local("/usr/sbin/adduser -M gridhttps")
+        local("/usr/sbin/adduser -M storm")
 
         print(green("users storm and gridhttps added"))
         print(yellow("END of PRE-install actions."))
@@ -22,10 +21,21 @@ class StormSL5Deploy(Deploy):
         self.pkgtool.install(pkgs=["ntp", "ca-policy-egi-core"])
         print(green("<ntp, ca-policy-egi-core> installed."))
 
-        #local("mount -o remount,acl,user_xattr /")
-        #print(green("Enabled ACLs and Extended Attribute Support in /"))
+        local("mount -o remount,acl,user_xattr /")
+        print(green("Enabled ACLs and Extended Attribute Support in /"))
 
         print(yellow("END of PRE-config actions."))
+
+    def pre_validate(self):
+        print(yellow("PRE-validate actions."))
+
+        pkgs = ["storm-srm-client", "uberftp", "curl",
+                "myproxy", "voms-clients", "lcg-util"]
+        self.pkgtool.install(pkgs=pkgs)
+        print(green("<%s> installed." % ", ".join(pkgs)))
+
+        print(yellow("END of PRE-validate actions."))
+        
 
 
 sl5 = StormSL5Deploy(
@@ -36,4 +46,5 @@ sl5 = StormSL5Deploy(
     nodetype=["se_storm_backend",  "se_storm_frontend", "se_storm_gridftp",
               "se_storm_gridhttps"],
     siteinfo=["site-info-storm.def"],
-    validate_path=[("bin/storm", {"user": "umd"})])
+    validate_path=[("bin/user_creds", {"user": "umd", "args": ""}),
+                   ("bin/storm", {"user": "umd", "args": ""})])
