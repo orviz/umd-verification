@@ -53,8 +53,8 @@ class OwnCA(object):
                             trusted_ca_dir,
                             '.'.join([hash,
                                       "signing_policy"])), 'w') as f:
-                    f.writelines(["
-                            access_id_CA\tX509\t'%s'\n" % subject,
+                    f.writelines([
+                            "access_id_CA\tX509\t'%s'\n" % subject,
                             "pos_rights\tglobus\tCA:sign\n",
                             "cond_subjects\tglobus\t'\"/DC=%s/DC=%s/*\"'\n"
                                 % (self.domain_comp_country,
