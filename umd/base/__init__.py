@@ -2,8 +2,10 @@
 from fabric.tasks import Task
 
 from umd.base.configure import YaimConfig
+from umd.base.infomodel import InfoModel
 from umd.base.install import Install
 from umd.base.install import utils as inst_utils
+from umd.base.security import Security
 from umd.base import utils
 from umd.base.validate import Validate
 
@@ -72,6 +74,12 @@ class Deploy(Task):
         YaimConfig(self.nodetype,
                    self.siteinfo).run(*args, **kwargs)
 
+    def _security(self, *args, **kwargs):
+        Security(self.pkgtool).run(*args, **kwargs)
+
+    def _infomodel(self, *args, **kwargs):
+        InfoModel(self.pkgtool).run(*args, **kwargs)
+
     def _validate(self):
         Validate().run(self.validate_path)
 
@@ -122,6 +130,13 @@ class Deploy(Task):
         self._config(yaim_config_path)
         self.post_config()
 
+        # QC_SEC
+        self._security()
+
+        # QC_INFO
+        self._infomodel()
+
+        # QC_FUNC
         if self.validate_path:
             self.pre_validate()
             self._validate()
