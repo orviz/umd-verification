@@ -79,6 +79,6 @@ class Validate(object):
             user, f, args = check
             self._handle_user(user)
             if self._is_executable(f):
-                cmd = "./%s" % " ".join([check, args])
+                cmd = "./%s" % " ".join([f, args])
                 print(yellow("Running check '%s' as user '%s'" % (cmd, user)))
                 local("su %s -c '%s'" % (user, cmd))
