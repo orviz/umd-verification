@@ -7,4 +7,4 @@ cat > ~/.voms/vomses << EOF
 "ops.vo.ibergrid.eu" "voms01.ncg.ingrid.pt" "40001" "/C=PT/O=LIPCA/O=LIP/OU=Lisboa/CN=voms01.ncg.ingrid.pt" "ops.vo.ibergrid.eu"
 EOF
 
-echo $MYPROXY_PASSWORD | myproxy-logon -S -s myproxy.hellasgrid.gr -l $MYPROXY_USER -m ops.vo.ibergrid.eu
+echo $MYPROXY_PASSWD | myproxy-logon -S -s $MYPROXY_SERVER -l $MYPROXY_USER -m ops.vo.ibergrid.eu
