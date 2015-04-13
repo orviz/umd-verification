@@ -8,7 +8,8 @@ class Security(object):
 
     def qc_sec_5(self):
         """World Writable Files check."""
-        local_wwf_files = local("find / -type f -perm -002 -exec ls -l {} \;",
+        local_wwf_files = local(("find / -not \\( -path \"/proc\" -prune \\) "
+                                 "-type f -perm -002 -exec ls -l {} \;"),
                                 capture=True)
         if local_wwf_files:
             print(yellow("Detected local world-writable files:\n%s"
