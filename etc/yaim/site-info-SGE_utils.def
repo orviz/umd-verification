@@ -2,9 +2,11 @@
 CE_BATCH_SYS=sge
 
 SGE_ROOT="/opt/gridengine"
+SGE_SHARED_INSTALL=yes
 
 BATCH_VERSION="6.2u5"
 BATCH_SERVER=`hostname -f`
 
 BATCH_LOG_DIR="${SGE_ROOT}/default/common/accounting"
-BATCH_BIN_DIR="${SGE_ROOT}/bin/lx-amd64/"
+ARCH="`${SGE_ROOT}/util/arch`"
+BATCH_BIN_DIR="${SGE_ROOT}/bin/${ARCH}/"
