@@ -46,7 +46,7 @@ gridenginerized = CreamCEGridengineDeploy(
     name="creamce-gridengine",
     metapkg="emi-cream-ce emi-ge-utils",
     need_cert=True,
-    nodetype=["creamCE", "SGE_utils"]
+    nodetype=["creamCE", "SGE_utils"],
     siteinfo=["site-info-creamCE.def",
               "site-info-SGE_utils.def"],
     validate_path=["bin/cream/",
