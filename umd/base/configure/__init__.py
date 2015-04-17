@@ -2,7 +2,7 @@
 from fabric.api import local
 from fabric.colors import green
 from fabric.context_managers import lcd
-from fabric.context_managers import prefix
+# from fabric.context_managers import prefix
 
 import tempfile
 
@@ -29,6 +29,7 @@ class YaimConfig(object):
             local("cat %s" % f.name)
 
             with lcd(config_path):
-                with prefix("source %s" % f.name):
-                    local("/opt/glite/yaim/bin/yaim -c -s %s -n %s"
-                          % (f.name, " -n ".join(self.nodetype)))
+                # FIXME(orviz): this is not supported on SL6(?)
+                # with prefix("source %s" % f.name):
+                local("/opt/glite/yaim/bin/yaim -c -s %s -n %s"
+                      % (f.name, " -n ".join(self.nodetype)))

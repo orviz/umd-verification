@@ -35,7 +35,6 @@ class StormSL5Deploy(Deploy):
         print(green("<%s> installed." % ", ".join(pkgs)))
 
         print(yellow("END of PRE-validate actions."))
-        
 
 
 sl5 = StormSL5Deploy(
@@ -43,7 +42,7 @@ sl5 = StormSL5Deploy(
     need_cert=True,
     metapkg=["emi-storm-backend-mp", "emi-storm-frontend-mp",
              "emi-storm-globus-gridftp-mp", "emi-storm-gridhttps-mp"],
-    nodetype=["se_storm_backend",  "se_storm_frontend", "se_storm_gridftp",
+    nodetype=["se_storm_backend", "se_storm_frontend", "se_storm_gridftp",
               "se_storm_gridhttps"],
     siteinfo=["site-info-storm.def"],
     validate_path=[("bin/user_creds", {"user": "umd", "args": ""}),

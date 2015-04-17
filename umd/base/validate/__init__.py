@@ -60,7 +60,7 @@ class Validate(object):
 
                 if isinstance(meta, dict):
                     d = collections.defaultdict(str)
-                    for k,v in meta.items():
+                    for k, v in meta.items():
                         d[k] = v
                     l.append((d["user"], f, d["args"]))
             else:
