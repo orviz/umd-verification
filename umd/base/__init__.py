@@ -48,6 +48,7 @@ class Deploy(Task):
         self.validate_path = validate_path
         self.os = None
         self.pkgtool = None
+        self.exceptions = exceptions
 
     def pre_install(self):
         pass
