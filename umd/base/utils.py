@@ -1,4 +1,3 @@
-
 import os.path
 import socket
 
@@ -36,13 +35,14 @@ def runcmd(cmd, output_file, fail_check=True):
         r = local(cmd, capture=True)
     if fail_check:
         if r.failed:
-    	    raise exception.ExecuteCommandException(("Error found while executing "
-    	    					     "command: '%s' (Reason: %s)" 
-    						     % (cmd, r.stderr)))
+            raise exception.ExecuteCommandException(("Error found while "
+                                                     "executing command: "
+                                                     "'%s' (Reason: %s)"
+                                                     % (cmd, r.stderr)))
     if r.stdout:
-    	to_file('.'.join([output_file, "stdout"]), r.stdout)
+        to_file('.'.join([output_file, "stdout"]), r.stdout)
     if r.stderr:
-    	to_file('.'.join([output_file, "stderr"]), r.stderr)
+        to_file('.'.join([output_file, "stderr"]), r.stderr)
     return r
 
 
@@ -53,15 +53,15 @@ def stepprint(id, description):
 
 def userprint(level, msg, do_abort=False):
     level_color = {
-	"FAIL": red,
-	"OK": green,
-	"WARNING": yellow,
+        "FAIL": red,
+        "OK": green,
+        "WARNING": yellow,
     }
     message = "[%s] %s" % (level_color[level](level), msg)
     if do_abort:
-	abort(message)
+        abort(message)
     else:
-    	print(message)
+        print(message)
 
 
 class OwnCA(object):
@@ -96,15 +96,14 @@ class OwnCA(object):
                 local("cp ca.pem %s" % os.path.join(trusted_ca_dir,
                                                     '.'.join([hash, '0'])))
                 with open(os.path.join(
-                            trusted_ca_dir,
-                            '.'.join([hash,
-                                      "signing_policy"])), 'w') as f:
+                    trusted_ca_dir,
+                    '.'.join([hash, "signing_policy"])), 'w') as f:
                     f.writelines([
-                            "access_id_CA\tX509\t'%s'\n" % subject,
-                            "pos_rights\tglobus\tCA:sign\n",
-                            "cond_subjects\tglobus\t'\"/DC=%s/DC=%s/*\"'\n"
-                                % (self.domain_comp_country,
-                                   self.domain_comp)])
+                        "access_id_CA\tX509\t'%s'\n" % subject,
+                        "pos_rights\tglobus\tCA:sign\n",
+                        "cond_subjects\tglobus\t'\"/DC=%s/DC=%s/*\"'\n"
+                        % (self.domain_comp_country,
+                           self.domain_comp)])
 
     def issue_cert(self,
                    hostname=socket.getfqdn(),

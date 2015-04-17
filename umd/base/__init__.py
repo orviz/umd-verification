@@ -20,7 +20,7 @@ class Deploy(Task):
                  nodetype=[],
                  siteinfo=[],
                  validate_path=None,
-		 exceptions={}):
+                 exceptions={}):
         """Arguments:
                 name: Fabric command name.
                 metapkg: list of UMD metapackages to install.
@@ -77,7 +77,7 @@ class Deploy(Task):
 
     def _security(self, *args, **kwargs):
         Security(self.pkgtool,
-		 self.exceptions).run(*args, **kwargs)
+                 self.exceptions).run(*args, **kwargs)
 
     def _infomodel(self, *args, **kwargs):
         InfoModel(self.pkgtool).run(*args, **kwargs)
@@ -121,9 +121,9 @@ class Deploy(Task):
         if self.need_cert:
             self.pkgtool.install(pkgs="ca-policy-egi-core")
             ca = utils.OwnCA(
-                    domain_comp_country="es",
-                    domain_comp="UMDverification",
-                    common_name="UMDVerificationOwnCA")
+                domain_comp_country="es",
+                domain_comp="UMDverification",
+                common_name="UMDVerificationOwnCA")
             ca.create(trusted_ca_dir="/etc/grid-security/certificates")
             ca.issue_cert(key_prv="/etc/grid-security/hostkey.pem",
                           key_pub="/etc/grid-security/hostcert.pem")

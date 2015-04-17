@@ -5,9 +5,10 @@ from umd.base import Deploy
 
 
 class CreamCEDeploy(Deploy):
-    exceptions = {"qc_sec_5": {
-			"known_worldwritable_filelist": 
-				["/var/blah/user_blah_job_registry.bjr/registry.locktest"]}}
+    exceptions = {
+        "qc_sec_5": {
+            "known_worldwritable_filelist":
+                ["/var/blah/user_blah_job_registry.bjr/registry.locktest"]}}
 
 
 class CreamCEStandalone(CreamCEDeploy):
@@ -22,9 +23,9 @@ class CreamCEStandalone(CreamCEDeploy):
 
 
 class CreamCEGridengine(CreamCEDeploy):
-    """CREAM CE + GridEngine on Scientific Linux
-       deployment (configuration via Yaim)."""
-
+    """CREAM CE + GridEngine on Scientific Linux deployment (configuration
+       via Yaim).
+    """
     def pre_config(self):
         print(yellow("PRE-config actions."))
 
