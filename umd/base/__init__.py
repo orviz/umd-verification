@@ -19,7 +19,8 @@ class Deploy(Task):
                  need_cert=False,
                  nodetype=[],
                  siteinfo=[],
-                 validate_path=None):
+                 validate_path=None,
+		 exceptions={}):
         """Arguments:
                 name: Fabric command name.
                 metapkg: list of UMD metapackages to install.
@@ -75,7 +76,8 @@ class Deploy(Task):
                    self.siteinfo).run(*args, **kwargs)
 
     def _security(self, *args, **kwargs):
-        Security(self.pkgtool).run(*args, **kwargs)
+        Security(self.pkgtool,
+		 self.exceptions).run(*args, **kwargs)
 
     def _infomodel(self, *args, **kwargs):
         InfoModel(self.pkgtool).run(*args, **kwargs)

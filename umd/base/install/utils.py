@@ -6,9 +6,9 @@ from umd import exception
 
 def yum(action, pkgs=None):
     if pkgs:
-        local("yum -y %s %s" % (action, " ".join(pkgs)))
+        local("yum -y %s %s" % (action, " ".join(pkgs)), capture=True)
     else:
-        local("yum -y %s" % action)
+        local("yum -y %s" % action, capture=True)
 
 
 class PkgTool(object):

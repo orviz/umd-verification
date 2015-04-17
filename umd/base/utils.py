@@ -2,7 +2,13 @@
 import os.path
 import socket
 
+from fabric.api import abort
 from fabric.api import local
+from fabric.api import puts
+from fabric.api import settings
+from fabric.colors import blue
+from fabric.colors import green
+from fabric.colors import red
 from fabric.colors import yellow
 from fabric.context_managers import lcd
 
@@ -16,6 +22,46 @@ def to_list(obj):
     elif isinstance(obj, str):
         return [obj]
     return obj
+
+
+def to_file(fname, output):
+    with open(fname, 'w') as f:
+        f.write(output)
+        f.flush()
+    puts(blue("\t* Output written to file: %s" % fname))
+
+
+def runcmd(cmd, output_file, fail_check=True):
+    with settings(warn_only=True):
+        r = local(cmd, capture=True)
+    if fail_check:
+        if r.failed:
+    	    raise exception.ExecuteCommandException(("Error found while executing "
+    	    					     "command: '%s' (Reason: %s)" 
+    						     % (cmd, r.stderr)))
+    if r.stdout:
+    	to_file('.'.join([output_file, "stdout"]), r.stdout)
+    if r.stderr:
+    	to_file('.'.join([output_file, "stderr"]), r.stderr)
+    return r
+
+
+def stepprint(id, description):
+    """Prints a QC header with the id and description."""
+    print(green("[[%s - %s]]" % (id, description)))
+
+
+def userprint(level, msg, do_abort=False):
+    level_color = {
+	"FAIL": red,
+	"OK": green,
+	"WARNING": yellow,
+    }
+    message = "[%s] %s" % (level_color[level](level), msg)
+    if do_abort:
+	abort(message)
+    else:
+    	print(message)
 
 
 class OwnCA(object):
