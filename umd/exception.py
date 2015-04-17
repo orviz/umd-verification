@@ -9,3 +9,9 @@ class ConfigException(Exception):
 
 class ValidateException(Exception):
     pass
+
+class ExecuteCommandException(Exception):
+    pass
+
+class InfoModelException(Exception):
+    pass

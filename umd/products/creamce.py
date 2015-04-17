@@ -5,8 +5,13 @@ from umd.base import Deploy
 
 
 class CreamCEDeploy(Deploy):
-    """CREAM CE standalone deployment (configuration via Yaim)."""
+    exceptions = {"qc_sec_5": {
+			"known_worldwritable_filelist": 
+				["/var/blah/user_blah_job_registry.bjr/registry.locktest"]}}
 
+
+class CreamCEStandalone(CreamCEDeploy):
+    """CREAM CE standalone deployment (configuration via Yaim)."""
     def pre_config(self):
         print(yellow("PRE-config actions."))
 
@@ -16,7 +21,7 @@ class CreamCEDeploy(Deploy):
         print(yellow("END of PRE-config actions."))
 
 
-class CreamCEGridengineDeploy(Deploy):
+class CreamCEGridengine(CreamCEDeploy):
     """CREAM CE + GridEngine on Scientific Linux
        deployment (configuration via Yaim)."""
 
@@ -30,7 +35,7 @@ class CreamCEGridengineDeploy(Deploy):
         print(yellow("END of PRE-config actions."))
 
 
-standalone = CreamCEDeploy(
+standalone = CreamCEStandalone(
     name="creamce-standalone",
     metapkg="emi-cream-ce",
     need_cert=True,
@@ -42,7 +47,7 @@ standalone = CreamCEDeploy(
                        "user": "umd",
                        "args": "/etc/grid-security/hostcert.pem"})])
 
-gridenginerized = CreamCEGridengineDeploy(
+gridenginerized = CreamCEGridengine(
     name="creamce-gridengine",
     metapkg="emi-cream-ce emi-ge-utils",
     need_cert=True,
