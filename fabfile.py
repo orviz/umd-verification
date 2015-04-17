@@ -6,12 +6,11 @@ from umd.products.creamce import *
 from umd.products.storm import *
 
 
-#print output
 output.status = False
 output.stdout = False
 output.warnings = False
 output.running = False
-output.user = False
+output.user = True
 output.stderr = False
-output.aborts = False
+output.aborts = True
 output.debug = False
