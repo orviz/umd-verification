@@ -46,3 +46,6 @@ LCG-2_7_0"
 
 USE_CEMON=false
 CEMON_HOST=$CE_HOST
+
+# This value MUST be overwritten when configuring a batch server
+BATCH_VERSION="x"

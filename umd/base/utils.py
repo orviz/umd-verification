@@ -1,3 +1,4 @@
+import os
 import os.path
 import socket
 
@@ -23,45 +24,88 @@ def to_list(obj):
     return obj
 
 
-def to_file(fname, output):
-    with open(fname, 'w') as f:
-        f.write(output)
-        f.flush()
-    puts(blue("\t* Output written to file: %s" % fname))
+class QCStep(object):
+    """Manages all the common functions that are used in a QC step."""
+    def __init__(self, id, description, logfile):
+        self.id = id
+        self.description = description
+        self.logfile = logfile
 
+        self._print_header()
+        self._remove_last_logfile()
 
-def runcmd(cmd, output_file, fail_check=True):
-    with settings(warn_only=True):
-        r = local(cmd, capture=True)
-    if fail_check:
-        if r.failed:
-            raise exception.ExecuteCommandException(("Error found while "
-                                                     "executing command: "
-                                                     "'%s' (Reason: %s)"
-                                                     % (cmd, r.stderr)))
-    if r.stdout:
-        to_file('.'.join([output_file, "stdout"]), r.stdout)
-    if r.stderr:
-        to_file('.'.join([output_file, "stderr"]), r.stderr)
-    return r
+    def _print_header(self):
+        """Prints a QC header with the id and description."""
+        print("[[%s: %s]]" % (blue(self.id),
+                              blue(self.description)))
 
+    def _remove_last_logfile(self):
+        for stdtype in ("stdout", "stderr"):
+            _fname = '.'.join([self.logfile, stdtype])
+            if os.path.exists(_fname):
+                os.remove(_fname)
 
-def stepprint(id, description):
-    """Prints a QC header with the id and description."""
-    print(green("[[%s - %s]]" % (id, description)))
+    def userprint(self, msg):
+        """Prints info/debug logs."""
+        puts("[INFO] %s" % msg)
 
+    def print_result(self, level, msg, do_abort=False):
+        """Prints the final result of the current QC step."""
+        level_color = {
+            "FAIL": red,
+            "OK": green,
+            "WARNING": yellow,
+        }
+        msg = "[%s] %s." % (level_color[level](level), msg)
+        if do_abort:
+            msg = " ".join([msg, ("Check the logs (%s.[stdout|stderr]) for "
+                                  "further information." % self.logfile)])
+            abort(msg)
+        else:
+            print(msg)
 
-def userprint(level, msg, do_abort=False):
-    level_color = {
-        "FAIL": red,
-        "OK": green,
-        "WARNING": yellow,
-    }
-    message = "[%s] %s" % (level_color[level](level), msg)
-    if do_abort:
-        abort(message)
-    else:
-        print(message)
+    def to_file(self, r):
+        """Writes Fabric capture result to the given file."""
+        def _write(fname, msg):
+            with open(fname, 'a') as f:
+                f.write(msg)
+                f.flush()
+        l = []
+        if isinstance(r, str):  # exception
+            _fname = '.'.join([self.logfile, "stdout"])
+            _write(_fname, r)
+            l.append(_fname)
+        else:
+            if r.stdout:
+                _fname = '.'.join([self.logfile, "stdout"])
+                _write(_fname, r.stdout)
+                l.append(_fname)
+            if r.stderr:
+                _fname = '.'.join([self.logfile, "stderr"])
+                _write(_fname, r.stderr)
+                l.append(_fname)
+
+        return l
+
+    def runcmd(self, cmd, fail_check=True, log_to_file=True):
+        with settings(warn_only=True):
+            r = local(cmd, capture=True)
+
+        if log_to_file:
+            logs = self.to_file(r)
+
+        if fail_check:
+            if r.failed:
+                msg = "Error while executing command '%s'."
+                if logs:
+                    msg = ' '.join([msg, "See more information in logs (%s)."
+                                         % ','.join(logs)])
+                abort(red(msg % cmd))
+                #raise exception.ExecuteCommandException(("Error found while "
+                #                                         "executing command: "
+                #                                         "'%s' (Reason: %s)"
+                #                                         % (cmd, r.stderr)))
+        return r
 
 
 class OwnCA(object):
@@ -107,6 +151,7 @@ class OwnCA(object):
 
     def issue_cert(self,
                    hostname=socket.getfqdn(),
+                   hash="1024",
                    key_prv=None,
                    key_pub=None):
         """Issues a cert.
@@ -116,9 +161,10 @@ class OwnCA(object):
                 key_pub: Alternate path to store the certificate's public key.
         """
         with lcd(self.workspace):
-            local(("openssl req -newkey rsa:1024 -nodes -sha1 -keyout "
+            local(("openssl req -newkey rsa:%s -nodes -sha1 -keyout "
                    "cert.key -keyform PEM -out cert.req -outform PEM "
-                   "-subj '/DC=%s/DC=%s/CN=%s'" % (self.domain_comp_country,
+                   "-subj '/DC=%s/DC=%s/CN=%s'" % (hash,
+                                                   self.domain_comp_country,
                                                    self.domain_comp,
                                                    hostname)))
             local(("openssl x509 -req -in cert.req -CA ca.pem -CAkey ca.key "
@@ -126,7 +172,7 @@ class OwnCA(object):
 
             if key_prv:
                 local("cp cert.key %s" % key_prv)
-                print(yellow("Private key stored in '%s'." % key_prv))
+                puts("[INFO] Private key stored in '%s'." % key_prv)
             if key_pub:
                 local("cp cert.crt %s" % key_pub)
-                print(yellow("Public key stored in '%s'." % key_pub))
+                puts("[INFO] Public key stored in '%s'." % key_pub)

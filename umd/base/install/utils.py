@@ -6,9 +6,10 @@ from umd import exception
 
 def yum(action, pkgs=None):
     if pkgs:
-        local("yum -y %s %s" % (action, " ".join(pkgs)), capture=True)
+        r = local("yum -y %s %s" % (action, " ".join(pkgs)), capture=True)
     else:
-        local("yum -y %s" % action, capture=True)
+        r = local("yum -y %s" % action, capture=True)
+    return r
 
 
 class PkgTool(object):
@@ -26,13 +27,13 @@ class PkgTool(object):
         return self.REPOPATH[self.os]
 
     def install(self, pkgs):
-        self._exec(action="install", pkgs=pkgs)
+        return self._exec(action="install", pkgs=pkgs)
 
     def remove(self, pkgs):
-        self._exec(action="remove", pkgs=pkgs)
+        return self._exec(action="remove", pkgs=pkgs)
 
     def update(self):
-        self._exec(action="update")
+        return self._exec(action="update")
 
     def _exec(self, action, pkgs=None):
         try:

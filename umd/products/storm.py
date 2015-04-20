@@ -1,6 +1,6 @@
 from fabric.api import local
+from fabric.api import puts
 from fabric.colors import green
-from fabric.colors import yellow
 
 from umd.base import Deploy
 
@@ -8,33 +8,33 @@ from umd.base import Deploy
 class StormSL5Deploy(Deploy):
     """Single-node Storm deployment."""
     def pre_install(self):
-        print(yellow("PRE-install actions."))
+        puts(green("PRE-install actions."))
 
         local("/usr/sbin/adduser -M storm")
 
-        print(green("users storm and gridhttps added"))
-        print(yellow("END of PRE-install actions."))
+        puts(green("users storm and gridhttps added"))
+        puts(green("END of PRE-install actions."))
 
     def pre_config(self):
-        print(yellow("PRE-config actions."))
+        puts(green("PRE-config actions."))
 
         self.pkgtool.install(pkgs=["ntp", "ca-policy-egi-core"])
-        print(green("<ntp, ca-policy-egi-core> installed."))
+        puts(green("<ntp, ca-policy-egi-core> installed."))
 
         local("mount -o remount,acl,user_xattr /")
-        print(green("Enabled ACLs and Extended Attribute Support in /"))
+        puts(green("Enabled ACLs and Extended Attribute Support in /"))
 
-        print(yellow("END of PRE-config actions."))
+        puts(green("END of PRE-config actions."))
 
     def pre_validate(self):
-        print(yellow("PRE-validate actions."))
+        puts(green("PRE-validate actions."))
 
         pkgs = ["storm-srm-client", "uberftp", "curl",
                 "myproxy", "voms-clients", "lcg-util"]
         self.pkgtool.install(pkgs=pkgs)
-        print(green("<%s> installed." % ", ".join(pkgs)))
+        puts(green("<%s> installed." % ", ".join(pkgs)))
 
-        print(yellow("END of PRE-validate actions."))
+        puts(green("END of PRE-validate actions."))
 
 
 sl5 = StormSL5Deploy(
