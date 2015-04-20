@@ -2,11 +2,8 @@
 import os.path
 import shutil
 
-from fabric.api import local
-from fabric.colors import green
-from fabric.colors import yellow
-
 from umd import exception
+from umd.base.utils import QCStep
 
 
 class Install(object):
@@ -14,17 +11,17 @@ class Install(object):
         self.pkgtool = pkgtool
         self.metapkg = metapkg
 
-    def _get_pkg(self, url, download_path="/tmp"):
-        pkg_base = os.path.basename(url)
-        pkg_loc = os.path.join(download_path, pkg_base)
-        local("wget %s -O %s" % (url, pkg_loc))
-        return pkg_loc
-
-    def _enable_repo(self, repo_url, download_dir="/tmp/repofiles"):
-        local("wget -P %s -r -l1 --no-parent -A.repo %s"
-              % (download_dir,
-                 os.path.join(repo_url, "repofiles")), capture=True)
-
+    def _enable_repo(self,
+                     qc_step,
+                     repository_url,
+                     download_dir="/tmp/repofiles"):
+        r = qc_step.runcmd("wget -P %s -r -l1 --no-parent -A.repo %s"
+                           % (download_dir,
+                              os.path.join(repository_url, "repofiles")))
+        if r.failed:
+            qc_step.print_result("FAIL",
+                                 "Error retrieving verification repofile.",
+                                 do_abort=True)
         repofiles = []
         for path in os.walk(download_dir):
             if path[-1]:
@@ -33,7 +30,6 @@ class Install(object):
             repopath = self.pkgtool.get_path()
             for f in repofiles:
                 shutil.copy2(f, repopath)
-                print(yellow("Repository file '%s' now available." % f))
 
     def run(self,
             installation_type,
@@ -51,31 +47,86 @@ class Install(object):
                 epel_release_url: EPEL release (URL).
                 umd_release_url : UMD release (URL).
         """
-        self.pkgtool.remove(pkgs=["epel-release*", "umd-release*"])
-        local("/bin/rm -f /etc/yum.repos.d/UMD-* /etc/yum.repos.d/epel-*")
-        print(green("Purged any previous EPEL or UMD repository file."))
+        if installation_type == "update":
+            qc_step = QCStep("QC_UPGRADE_1", "Upgrade", "/tmp/qc_upgrade_1")
+        elif installation_type == "install":
+            qc_step = QCStep("QC_INST_1",
+                             "Binary Distribution",
+                             "/tmp/qc_inst_1")
+
+        r = self.pkgtool.remove(pkgs=["epel-release*", "umd-release*"])
+        if r.failed:
+            qc_step.userprint("Could not delete [epel/umd]-release packages.")
+
+        if qc_step.runcmd(("/bin/rm -f /etc/yum.repos.d/UMD-* "
+                           "/etc/yum.repos.d/epel-*")):
+            qc_step.userprint(("Purged any previous EPEL or UMD repository "
+                               "file."))
 
         for pkg in (("EPEL", epel_release_url),
                     ("UMD", umd_release_url)):
             pkg_id, pkg_url = pkg
-            pkg_loc = self._get_pkg(pkg_url)
-            print(green("%s release RPM fetched from %s." % (pkg_id, pkg_url)))
-            self.pkgtool.install(pkgs=[pkg_loc])
-            print(green("%s release package installed." % pkg_id))
+            pkg_base = os.path.basename(pkg_url)
+            pkg_loc = os.path.join("/tmp", pkg_base)
+            if qc_step.runcmd("wget %s -O %s" % (pkg_url, pkg_loc)):
+                qc_step.userprint("%s release RPM fetched from %s."
+                                  % (pkg_id, pkg_url))
 
-        self.pkgtool.install(pkgs=["yum-priorities"])
-        print(green("'yum-priorities' (UMD) requirement installed."))
+            r = self.pkgtool.install(pkgs=[pkg_loc])
+            if r.failed:
+                qc_step.print_result("FAIL",
+                                     "Error while installing %s release."
+                                     % pkg_id)
+            else:
+                qc_step.userprint("%s release package installed." % pkg_id)
+
+        r = self.pkgtool.install(pkgs=["yum-priorities"])
+        if r.failed:
+            qc_step.userprint("Error while installing 'yum-priorities'.")
+        else:
+            qc_step.userprint("'yum-priorities' (UMD) requirement installed.")
 
         if installation_type == "update":
-            print(green("Installing UMD product/s: %s." % self.metapkg))
-            self.pkgtool.install(pkgs=[self.metapkg])
-            print(green("UMD product/s installation finished."))
+            # 1) Install base (production) version
+            r = self.pkgtool.install(pkgs=[self.metapkg])
+            if r.failed:
+                qc_step.print_result("FAIL",
+                                     "Error while installing '%s' packages"
+                                     % self.metapkg,
+                                     do_abort=True)
+            else:
+                qc_step.userprint("UMD product/s '%s' installation finished."
+                                  % self.metapkg)
 
-            self._enable_repo(repository_url)
-            self.pkgtool.update()
+            # 2) Enable verification repository
+            self._enable_repo(qc_step, repository_url)
+
+            # 3) Update
+            r = self.pkgtool.update()
+            if r.failed:
+                qc_step.print_result("FAIL",
+                                     ("Error updating from verification "
+                                      "repository."),
+                                     do_abort=True)
+            else:
+                qc_step.print_result("OK",
+                                     msg="System successfully updated.")
         elif installation_type == "install":
-            self._enable_repo(repository_url)
-            self.pkgtool.install(self.metapkg)
+            # 1) Enable verification repository
+            self._enable_repo(qc_step, repository_url)
+
+            # 2) Install verification version
+            r = self.pkgtool.install(self.metapkg)
+            # NOTE(orviz): missing WARNING case
+            if r.failed:
+                qc_step.print_result("FAIL",
+                                     ("There was a failure installing "
+                                      "metapackage '%s'." % self.metapkg),
+                                     do_abort=True)
+            else:
+                qc_step.print_result("OK",
+                                     ("Metapackage '%s' installed "
+                                      "successfully.." % self.metapkg))
         else:
             raise exception.InstallException(("Installation type '%s' "
                                               "not implemented."

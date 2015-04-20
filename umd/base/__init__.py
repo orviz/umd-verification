@@ -8,6 +8,7 @@ from umd.base.install import utils as inst_utils
 from umd.base.security import Security
 from umd.base import utils
 from umd.base.validate import Validate
+from umd import exception
 
 
 class Deploy(Task):
@@ -46,9 +47,11 @@ class Deploy(Task):
         self.nodetype = nodetype
         self.siteinfo = siteinfo
         self.validate_path = validate_path
+        self.exceptions = exceptions
         self.os = None
         self.pkgtool = None
-        self.exceptions = exceptions
+        self.cfgtool = None
+        self.ca = None
 
     def pre_install(self):
         pass
@@ -72,12 +75,10 @@ class Deploy(Task):
         Install(self.pkgtool,
                 self.metapkg).run(*args, **kwargs)
 
-    def _config(self, *args, **kwargs):
-        YaimConfig(self.nodetype,
-                   self.siteinfo).run(*args, **kwargs)
-
     def _security(self, *args, **kwargs):
         Security(self.pkgtool,
+                 self.cfgtool,
+                 self.ca,
                  self.exceptions).run(*args, **kwargs)
 
     def _infomodel(self, *args, **kwargs):
@@ -110,28 +111,36 @@ class Deploy(Task):
                 Path pointing to YAIM configuration files.
         """
         self.os = os
+
+        # Packaging tool
         self.pkgtool = inst_utils.PkgTool(self.os)
 
+        # Configuration tool
+        if self.nodetype and self.siteinfo:
+            self.cfgtool = YaimConfig(self.nodetype,
+                                      self.siteinfo,
+                                      yaim_config_path,
+                                      pre_config=self.pre_config,
+                                      post_config=self.post_config)
+        else:
+            raise exception.ConfigException("Configuration not implemented.")
+
+        # Certification Authority
+        if self.need_cert:
+            self.pkgtool.install(pkgs="ca-policy-egi-core")
+            self.ca = utils.OwnCA(
+                domain_comp_country="es",
+                domain_comp="UMDverification",
+                common_name="UMDVerificationOwnCA")
+            self.ca.create(trusted_ca_dir="/etc/grid-security/certificates")
+
+        # QC_INST, QC_UPGRADE
         self.pre_install()
         self._install(installation_type,
                       repository_url,
                       epel_release,
                       umd_release)
         self.post_install()
-
-        if self.need_cert:
-            self.pkgtool.install(pkgs="ca-policy-egi-core")
-            ca = utils.OwnCA(
-                domain_comp_country="es",
-                domain_comp="UMDverification",
-                common_name="UMDVerificationOwnCA")
-            ca.create(trusted_ca_dir="/etc/grid-security/certificates")
-            ca.issue_cert(key_prv="/etc/grid-security/hostkey.pem",
-                          key_pub="/etc/grid-security/hostcert.pem")
-
-        self.pre_config()
-        self._config(yaim_config_path)
-        self.post_config()
 
         # QC_SEC
         self._security()

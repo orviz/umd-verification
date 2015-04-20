@@ -1,21 +1,45 @@
 from umd.base.security import utils as sec_utils
-from umd.base import utils as base_utils
+from umd.base.utils import QCStep
 
 
 class Security(object):
-    def __init__(self, pkgtool, exceptions):
+    def __init__(self, pkgtool, cfgtool, ca, exceptions):
         self.pkgtool = pkgtool
+        self.cfgtool = cfgtool
+        self.ca = ca
         self.exceptions = exceptions
+
+    def qc_sec_2(self, **kwargs):
+        """SHA-2 Certificates Support."""
+        qc_step = QCStep("QC_SEC_2",
+                         "SHA-2 Certificates Support",
+                         "/tmp/qc_sec_2")
+
+        self.ca.issue_cert(hash="2048",
+                           key_prv="/etc/grid-security/hostkey.pem",
+                           key_pub="/etc/grid-security/hostcert.pem")
+
+        r = self.cfgtool.run(qc_step)
+        if r.failed:
+            qc_step.print_result("FAIL",
+                                 "YAIM configuration failed with SHA-2 certs.",
+                                 do_abort=True)
+        else:
+            qc_step.print_result("OK",
+                                 "Product services can manage SHA-2 certs.")
 
     def qc_sec_5(self, **kwargs):
         """World Writable Files check.
             (kwargs) known_worldwritable_filelist: list with
             the known world writable files.
         """
-        base_utils.stepprint("QC_SEC_5", "World Writable Files")
-        r = base_utils.runcmd(("find / -not \\( -path \"/proc\" -prune \\) "
-                               "-type f -perm -002 -exec ls -l {} \;"),
-                              output_file="/tmp/qc_sec_5.out")
+        qc_step = QCStep("QC_SEC_5",
+                         "World Writable Files",
+                         "/tmp/qc_sec_5")
+
+        r = qc_step.runcmd(("find / -not \\( -path \"/proc\" -prune \\) "
+                            "-type f -perm -002 -exec ls -l {} \;"),
+                           fail_check=False)
         if r:
             ww_filelist = sec_utils.get_filelist_from_find(r)
             try:
@@ -23,17 +47,17 @@ class Security(object):
             except KeyError:
                 known_ww_filelist = []
             if set(ww_filelist).difference(set(known_ww_filelist)):
-                base_utils.userprint(level="FAIL",
-                                     msg=("Found %s world-writable "
-                                          "file/s." % len(ww_filelist)),
+                qc_step.print_result("FAIL",
+                                     "Found %s world-writable file/s."
+                                     % len(ww_filelist),
                                      do_abort=True)
             else:
-                base_utils.userprint(level="WARNING",
-                                     msg=("Found world-writable file/s "
-                                          "required for operation."))
+                qc_step.print_result("WARNING",
+                                     ("Found world-writable file/s "
+                                      "required for operation."))
         else:
-            base_utils.userprint(level="OK",
-                                 msg="Found no world-writable file.")
+            qc_step.print_result("OK",
+                                 "Found no world-writable file.")
 
         # if self.pkgtool.os == "sl5":
         #     pkg_wwf_files = local(("rpm -qalv | egrep '^[-d]([-r][-w][-xs])"
@@ -43,4 +67,9 @@ class Security(object):
         #                      % pkg_wwf_files))
 
     def run(self):
-        self.qc_sec_5(**self.exceptions["qc_sec_5"])
+        self.qc_sec_2()
+        # NOTE(orviz): use defaultdict instead of try..except catch
+        try:
+            self.qc_sec_5(**self.exceptions["qc_sec_5"])
+        except KeyError:
+            self.qc_sec_5()

@@ -1,39 +1,38 @@
+from fabric.api import puts
 from fabric.colors import green
-from fabric.colors import yellow
 
 from umd.base import Deploy
 
 
-class CreamCEDeploy(Deploy):
-    exceptions = {
-        "qc_sec_5": {
-            "known_worldwritable_filelist":
-                ["/var/blah/user_blah_job_registry.bjr/registry.locktest"]}}
+exceptions = {
+    "qc_sec_5": {
+        "known_worldwritable_filelist":
+            ["/var/blah/user_blah_job_registry.bjr/registry.locktest"]}}
 
 
-class CreamCEStandalone(CreamCEDeploy):
+class CreamCEStandalone(Deploy):
     """CREAM CE standalone deployment (configuration via Yaim)."""
     def pre_config(self):
-        print(yellow("PRE-config actions."))
+        puts(green("PRE-config actions."))
 
         self.pkgtool.install(pkgs="sudo")
 
-        print(green("<sudo> package installed."))
-        print(yellow("END of PRE-config actions."))
+        puts(green("<sudo> package installed."))
+        puts(green("END of PRE-config actions."))
 
 
-class CreamCEGridengine(CreamCEDeploy):
+class CreamCEGridengine(Deploy):
     """CREAM CE + GridEngine on Scientific Linux deployment (configuration
        via Yaim).
     """
     def pre_config(self):
-        print(yellow("PRE-config actions."))
+        puts(green("PRE-config actions."))
 
         self.pkgtool.install(pkgs=["sudo", "gridengine", "gridengine-qmaster"])
 
-        print(green(("<sudo>, <gridengine> and <gridengine-qmaster> packages "
-                     "installed.")))
-        print(yellow("END of PRE-config actions."))
+        puts(green(("<sudo>, <gridengine> and <gridengine-qmaster> packages "
+                    "installed.")))
+        puts(green("END of PRE-config actions."))
 
 
 standalone = CreamCEStandalone(
@@ -41,12 +40,12 @@ standalone = CreamCEStandalone(
     metapkg="emi-cream-ce",
     need_cert=True,
     nodetype="creamCE",
-    siteinfo=["site-info-creamCE.def",
-              "site-info-SGE_utils.def"],
+    siteinfo=["site-info-creamCE.def"],
     validate_path=["bin/cream/",
                    ("bin/certs/check-cert", {
                        "user": "umd",
-                       "args": "/etc/grid-security/hostcert.pem"})])
+                       "args": "/etc/grid-security/hostcert.pem"})],
+    exceptions=exceptions)
 
 gridenginerized = CreamCEGridengine(
     name="creamce-gridengine",
@@ -58,4 +57,5 @@ gridenginerized = CreamCEGridengine(
     validate_path=["bin/cream/",
                    ("bin/certs/check-cert", {
                        "user": "umd",
-                       "args": "/etc/grid-security/hostcert.pem"})])
+                       "args": "/etc/grid-security/hostcert.pem"})],
+    exceptions=exceptions)
