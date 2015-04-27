@@ -45,5 +45,4 @@ sl5 = StormSL5Deploy(
     nodetype=["se_storm_backend", "se_storm_frontend", "se_storm_gridftp",
               "se_storm_gridhttps"],
     siteinfo=["site-info-storm.def"],
-    validate_path=[("bin/user_creds", {"user": "umd", "args": ""}),
-                   ("bin/storm", {"user": "umd", "args": ""})])
+    qc_specific_id="storm")
