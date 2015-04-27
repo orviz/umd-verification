@@ -41,10 +41,7 @@ standalone = CreamCEStandalone(
     need_cert=True,
     nodetype="creamCE",
     siteinfo=["site-info-creamCE.def"],
-    validate_path=["bin/cream/",
-                   ("bin/certs/check-cert", {
-                       "user": "umd",
-                       "args": "/etc/grid-security/hostcert.pem"})],
+    qc_specific_id="cream",
     exceptions=exceptions)
 
 gridenginerized = CreamCEGridengine(
@@ -54,8 +51,5 @@ gridenginerized = CreamCEGridengine(
     nodetype=["creamCE", "SGE_utils"],
     siteinfo=["site-info-creamCE.def",
               "site-info-SGE_utils.def"],
-    validate_path=["bin/cream/",
-                   ("bin/certs/check-cert", {
-                       "user": "umd",
-                       "args": "/etc/grid-security/hostcert.pem"})],
+    qc_specific_id="cream",
     exceptions=exceptions)

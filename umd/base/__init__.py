@@ -20,7 +20,7 @@ class Deploy(Task):
                  need_cert=False,
                  nodetype=[],
                  siteinfo=[],
-                 validate_path=None,
+                 qc_specific_id=None,
                  exceptions={}):
         """Arguments:
                 name: Fabric command name.
@@ -46,7 +46,7 @@ class Deploy(Task):
         self.need_cert = need_cert
         self.nodetype = nodetype
         self.siteinfo = siteinfo
-        self.validate_path = validate_path
+        self.qc_specific_id = qc_specific_id
         self.exceptions = exceptions
         self.os = None
         self.pkgtool = None
@@ -85,7 +85,7 @@ class Deploy(Task):
         InfoModel(self.pkgtool).run(*args, **kwargs)
 
     def _validate(self):
-        Validate().run(self.validate_path)
+        Validate().run(self.qc_specific_id)
 
     def run(self,
             installation_type,
@@ -149,7 +149,6 @@ class Deploy(Task):
         self._infomodel()
 
         # QC_FUNC
-        if self.validate_path:
-            self.pre_validate()
-            self._validate()
-            self.post_validate()
+        self.pre_validate()
+        self._validate()
+        self.post_validate()
