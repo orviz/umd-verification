@@ -134,8 +134,6 @@ class Deploy(Task):
             }
             self.pkgtool.install(pkgs="ca-policy-egi-core",
                                  repofile=IGTF_REPOFILES[self.os])
-            import sys
-            sys.exit(0)
             self.ca = utils.OwnCA(
                 domain_comp_country="es",
                 domain_comp="UMDverification",
