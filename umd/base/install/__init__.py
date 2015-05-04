@@ -11,7 +11,7 @@ class Install(object):
         self.pkgtool = pkgtool
         self.metapkg = metapkg
 
-    def _enable_repo(self,
+    def _enable_verification_repo(self,
                      qc_step,
                      repository_url,
                      download_dir="/tmp/repofiles"):
@@ -99,7 +99,7 @@ class Install(object):
                                   % self.metapkg)
 
             # 2) Enable verification repository
-            self._enable_repo(qc_step, repository_url)
+            self._enable_verification_repo(qc_step, repository_url)
 
             # 3) Update
             r = self.pkgtool.update()
@@ -113,7 +113,7 @@ class Install(object):
                                      msg="System successfully updated.")
         elif installation_type == "install":
             # 1) Enable verification repository
-            self._enable_repo(qc_step, repository_url)
+            self._enable_verification_repo(qc_step, repository_url)
 
             # 2) Install verification version
             r = self.pkgtool.install(self.metapkg)
