@@ -1,3 +1,5 @@
+import os.path
+
 from fabric.api import local
 
 from umd.base import utils as base_utils
@@ -23,10 +25,17 @@ class PkgTool(object):
     def __init__(self, os):
         self.os = os
 
+    def _enable_repo(self, repofile):
+        local("wget %s -O %s" % (repofile,
+                                 os.path.join(self.REPOPATH[self.os],
+                                              os.path.basename(repofile))))
+
     def get_path(self):
         return self.REPOPATH[self.os]
 
-    def install(self, pkgs):
+    def install(self, pkgs, repofile=None):
+        if repofile:
+            self._enable_repo(repofile)
         return self._exec(action="install", pkgs=pkgs)
 
     def remove(self, pkgs):
