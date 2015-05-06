@@ -127,10 +127,12 @@ class Deploy(Task):
 
         # Certification Authority
         if self.need_cert:
-            # FIXME(orviz) Move this to a central/base configuration file (yaml)
+            # FIXME(orviz) Move to a central/base configuration file (yaml)
             IGTF_REPOFILES = {
-                "sl5": "http://repository.egi.eu/sw/production/cas/1/current/repo-files/EGI-trustanchors.repo",
-                "sl6": "http://repository.egi.eu/sw/production/cas/1/current/repo-files/EGI-trustanchors.repo",
+                "sl5": ("http://repository.egi.eu/sw/production/cas/1/current/"
+                        "repo-files/EGI-trustanchors.repo"),
+                "sl6": ("http://repository.egi.eu/sw/production/cas/1/current/"
+                        "repo-files/EGI-trustanchors.repo"),
             }
             self.pkgtool.install(pkgs="ca-policy-egi-core",
                                  repofile=IGTF_REPOFILES[self.os])

@@ -4,6 +4,7 @@ from fabric.context_managers import lcd
 
 import tempfile
 
+from umd.api import info
 from umd.base import utils as base_utils
 
 
@@ -37,8 +38,8 @@ class YaimConfig(object):
                                fail_check=False,
                                log_to_file=False)
             if r:
-                qc_step.userprint(("Creating temporary file '%s' with "
-                                   "content: %s" % (f.name, r)))
+                info(("Creating temporary file '%s' with "
+                      "content: %s" % (f.name, r)))
 
             with lcd(self.config_path):
                 # FIXME(orviz): this is not supported on SL6(?)

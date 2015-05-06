@@ -1,6 +1,4 @@
-from fabric.api import puts
-from fabric.colors import green
-
+from umd.api import info
 from umd.base import Deploy
 
 
@@ -13,12 +11,12 @@ exceptions = {
 class CreamCEStandalone(Deploy):
     """CREAM CE standalone deployment (configuration via Yaim)."""
     def pre_config(self):
-        puts(green("PRE-config actions."))
+        info("PRE-config actions.")
 
         self.pkgtool.install(pkgs="sudo")
 
-        puts(green("<sudo> package installed."))
-        puts(green("END of PRE-config actions."))
+        info("<sudo> package installed.")
+        info("END of PRE-config actions.")
 
 
 class CreamCEGridengine(Deploy):
@@ -26,13 +24,13 @@ class CreamCEGridengine(Deploy):
        via Yaim).
     """
     def pre_config(self):
-        puts(green("PRE-config actions."))
+        info("PRE-config actions.")
 
         self.pkgtool.install(pkgs=["sudo", "gridengine", "gridengine-qmaster"])
 
-        puts(green(("<sudo>, <gridengine> and <gridengine-qmaster> packages "
-                    "installed.")))
-        puts(green("END of PRE-config actions."))
+        info(("<sudo>, <gridengine> and <gridengine-qmaster> packages "
+              "installed."))
+        info("END of PRE-config actions.")
 
 
 standalone = CreamCEStandalone(

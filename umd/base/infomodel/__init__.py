@@ -1,5 +1,6 @@
 import ldap
 
+from umd.api import to_file
 from umd.base.infomodel import utils as info_utils
 from umd.base.utils import QCStep
 from umd import exception
@@ -55,7 +56,7 @@ class InfoModel(object):
                     "GLUE2EndpointImplementationVersion",
                     "GLUE2EntityOtherInfo"])
 
-            qc_step.to_file(info_utils.ldifize(ldap_result))
+            to_file(info_utils.ldifize(ldap_result))
 
             for dn, attrs in ldap_result:
                 try:
