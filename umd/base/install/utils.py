@@ -1,17 +1,16 @@
 import os.path
 import platform
 
-from fabric.api import local
-
+from umd.api import runcmd
 from umd.base import utils as base_utils
 from umd import exception
 
 
 def yum(action, pkgs=None):
     if pkgs:
-        r = local("yum -y %s %s" % (action, " ".join(pkgs)), capture=True)
+        r = runcmd("yum -y %s %s" % (action, " ".join(pkgs)))
     else:
-        r = local("yum -y %s" % action, capture=True)
+        r = runcmd("yum -y %s" % action)
     return r
 
 
