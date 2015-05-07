@@ -1,0 +1,127 @@
+#!/usr/bin/python2.6
+
+# TODO: add proper SSL checking
+
+#
+# This tests the webdav interface of a SE.
+#
+
+import commands
+import socket
+import sys
+import urlparse
+import uuid
+
+import requests
+
+
+class WebDavTester:
+    def __init__(self, proxy):
+        self.proxy = proxy
+
+    def mkcol(self, url):
+        s = requests.Session()
+        req = requests.Request('MKCOL', url)
+        prepped = req.prepare()
+        r = s.send(prepped, cert=self.proxy, verify=False)
+        assert(r.status_code == 201)
+
+    def put_file(self, url, contents):
+        r = requests.put(url, cert=self.proxy, verify=False, data=contents)
+        assert(r.status_code == 201)
+
+    def get_file(self, url):
+        r = requests.get(url, cert=self.proxy, verify=False)
+        assert(r.status_code == 200)
+        return r.text
+
+    def propfind(self, url):
+        s = requests.Session()
+        req = requests.Request('PROPFIND', url)
+        prepped = req.prepare()
+        r = s.send(prepped, cert=self.proxy, verify=False)
+        assert(r.status_code == 207)
+        return r.text
+
+    def copy(self, src, dst):
+        s = requests.Session()
+        req = requests.Request('COPY', src, headers={"Destination": dst})
+        prepped = req.prepare()
+        print prepped.headers
+        r = s.send(prepped, cert=self.proxy, verify=False)
+        assert(r.status_code == 201)
+
+    def move(self, src, dst):
+        s = requests.Session()
+        req = requests.Request('MOVE', src, headers={"Destination": dst})
+        prepped = req.prepare()
+        r = s.send(prepped, cert=self.proxy, verify=False)
+        assert(r.status_code == 201)
+
+    def delete(self, url):
+        r = requests.delete(url, cert=self.proxy, verify=False)
+        assert(r.status_code == 204)
+
+
+st, _ = commands.getstatusoutput("voms-proxy-info -exists")
+if st != 0:
+    print "NO PROXY!"
+    sys.exit(1)
+
+vo_name = commands.getoutput("voms-proxy-info -vo")
+proxy = commands.getoutput("voms-proxy-info -path")
+
+# XXX: this is hardcoded port and /webdav if we want to use this
+# for other SEs it must be defined differently
+base_url = 'https://%s:8443/webdav/%s/' % (socket.getfqdn(), vo_name)
+
+file_contents = """
+This is a simple test
+%s
+%s
+%s
+""" % (uuid.uuid4().hex, uuid.uuid4().hex, uuid.uuid4().hex)
+
+
+print "WEBDAV testing using %s" % base_url
+tester = WebDavTester(proxy)
+
+dir_name = uuid.uuid4().hex
+dir_url = urlparse.urljoin(base_url, dir_name)
+print "Creating dir %s" % dir_name
+tester.mkcol(dir_url)
+
+file1_url = urlparse.urljoin(dir_url + "/", "file1.txt")
+print "Creating file %s" % file1_url
+tester.put_file(file1_url, file_contents)
+
+print "Downloading file %s and checking contents" % file1_url
+server_contents = tester.get_file(file1_url)
+assert(file_contents == server_contents)
+
+print "Listing dir %s" % dir_name
+ls = tester.propfind(dir_url)
+assert("file1.txt" in ls)
+
+file2_url = urlparse.urljoin(dir_url + "/", "file2.txt")
+print "Copy %s to %s" % (file1_url, file2_url)
+tester.copy(file1_url, file2_url)
+ls = tester.propfind(dir_url)
+assert("file1.txt" in ls)
+assert("file2.txt" in ls)
+server_contents = tester.get_file(file2_url)
+assert(file_contents == server_contents)
+
+file3_url = urlparse.urljoin(dir_url + "/", "file3.txt")
+print "Move %s to %s" % (file2_url, file3_url)
+tester.move(file2_url, file3_url)
+ls = tester.propfind(dir_url)
+assert("file1.txt" in ls)
+assert("file2.txt" not in ls)
+assert("file3.txt" in ls)
+server_contents = tester.get_file(file3_url)
+assert(file_contents == server_contents)
+
+tester.delete(file1_url)
+tester.delete(file3_url)
+tester.delete(dir_url)

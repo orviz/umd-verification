@@ -1,8 +1,8 @@
-#!/bin/bash 
+#!/bin/bash
 
 #
 # tests for srm compliance using storm SRM client
-# 
+#
 
 HOST=`hostname -f`
 
@@ -14,7 +14,7 @@ DIR=`basename $STDOUT`
 
 execute() {
         echo ">> Executing $*"
-        $* 2>&1 > $STDOUT
+        "$@" 2>&1 > $STDOUT
         if [ $? -ne 0 ] ; then
                 echo "[ERROR]"
                 cat $STDOUT
@@ -24,7 +24,7 @@ execute() {
 }
 
 executeSRM() {
-    execute $*
+    execute "$@"
     cat $STDOUT | grep "SRM_SUCCESS" > /dev/null
     if [ $? -ne 0 ] ; then
         echo "[ERROR]"
@@ -38,11 +38,11 @@ get_file() {
         # $1 -> protocol
         # $2 -> srm location
         # $3 -> file to compare with
-        executeSRM clientSRM ptg -e $STORM_FE -s $2 -p -T -P $1 
+        executeSRM clientSRM ptg -e $STORM_FE -s $2 -p -T -P $1
         REQUEST_TOKEN=`cat $STDOUT | grep requestToken | cut -f2 -d"=" | tr -d '"'`
         TURL=`cat $STDOUT | grep "transferURL=" | cut -f2 -d"=" | tr -d '"'`
         echo "Getting file from $TURL (token: $REQUEST_TOKEN)"
-        executeSRM clientSRM statusptg -e $STORM_FE -t $REQUEST_TOKEN 
+        executeSRM clientSRM statusptg -e $STORM_FE -t $REQUEST_TOKEN
         cat $STDOUT | grep "SRM_FILE_PINNED" > /dev/null
         if [ $? -ne 0 ] ; then
                 echo "<< Unexpected srm status!?"
@@ -54,10 +54,8 @@ get_file() {
         if [ $1 = "gsiftp" ] ; then
                 execute uberftp $TURL file://$GET_TEST_FILE
         elif [ $1 = "https" ] ; then
-                execute curl -s \
-                     --capath /etc/grid-security/certificates \
-                     --cert $X509_USER_PROXY \
-                     -o $GET_TEST_FILE $TURL
+                # FIXME: this should be verify = True
+                execute python2.6 -c "import requests; r = requests.get(\"$TURL\", cert=\"$X509_USER_PROXY\", verify=False); open(\"$GET_TEST_FILE\", 'w+').write(r.text)"
         fi
         if [ $? -ne 0 ] ; then
                 echo "<< Unexpected copy status!?"
@@ -69,7 +67,7 @@ get_file() {
                 exit 1
         fi
         executeSRM clientSRM rf -e $STORM_FE -s $2 -t $REQUEST_TOKEN
-        executeSRM clientSRM statusptg -e $STORM_FE -t $REQUEST_TOKEN 
+        executeSRM clientSRM statusptg -e $STORM_FE -t $REQUEST_TOKEN
         cat $STDOUT | grep "SRM_RELEASED" > /dev/null
         if [ $? -ne 0 ] ; then
                 echo "<< Unexpected srm status!?"
@@ -93,10 +91,7 @@ put_file() {
         if [ $1 = "gsiftp" ] ; then
                 execute uberftp file://$3 $TURL
         elif [ $1 = "https" ] ; then
-                execute curl \
-                     --capath /etc/grid-security/certificates \
-                     --cert $X509_USER_PROXY \
-                     -X PUT -T $3 $TURL
+                execute python2.6 -c "import requests; r = requests.put(\"$TURL\", cert=\"$X509_USER_PROXY\", verify=False, data=open(\"$3\").read())"
         fi
         if [ $? -ne 0 ] ; then
                 echo "<< Copy failed!"
@@ -124,7 +119,7 @@ executeSRM clientSRM gtp -e $STORM_FE
 cat $STDOUT | grep "transferProtocol.*https" > /dev/null && HTTPS_SUPPORT=1
 cat $STDOUT | grep "transferProtocol.*gsiftp" > /dev/null && GSIFTP_SUPPORT=1
 
-executeSRM clientSRM mkdir -e $STORM_FE -s $SRM_URI/$VO/$DIR/ 
+executeSRM clientSRM mkdir -e $STORM_FE -s $SRM_URI/$VO/$DIR/
 
 executeSRM clientSRM ls -e $STORM_FE -s $SRM_URI/$VO/$DIR/  -l
 
