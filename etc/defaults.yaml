@@ -1,5 +1,5 @@
 base:
-    log_location: "/var/tmp/umd-verification"
+    log_path: "/var/tmp/umd-verification"
 
 epel_release:
     redhat5: "http://download.fedoraproject.org/pub/epel/5/x86_64/epel-release-5-4.noarch.rpm"

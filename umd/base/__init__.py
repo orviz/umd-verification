@@ -1,5 +1,3 @@
-import yaml
-
 from fabric.tasks import Task
 
 from umd.base.configure import YaimConfig
@@ -9,6 +7,7 @@ from umd.base.install import utils as inst_utils
 from umd.base.security import Security
 from umd.base import utils
 from umd.base.validate import Validate
+from umd.config import CFG
 from umd import exception
 
 
@@ -25,20 +24,15 @@ class Deploy(Task):
                  exceptions={}):
         """Arguments:
                 name: Fabric command name.
+                doc: docstring that will appear when typing `fab -l`.
                 metapkg: list of UMD metapackages to install.
                 need_cert: whether installation type requires a signed cert.
                 nodetype: list of YAIM nodetypes to be configured.
                 siteinfo: list of site-info files to be used.
-                validate_path: path pointing to validate checks.
-                    - Accepts both file and directory specification.
-                        1) File: with optional arguments in case the check
-                                 needs them. In this case the format is a
-                                 tuple/list with the check name as the 1st
-                                 element and the argument string as the 2nd
-                                 element.
-                        2) Directory: runs all the executable files located
-                                      under it, no matter its depth in the
-                                      hierarchy (no arguments accepted).
+                qc_specific_id: ID that match the list of QC-specific checks
+                    to be executed. The check definition must be included in
+                    etc/qc_specific.yaml
+                exceptions: documented exceptions for a given UMD product.
         """
         self.name = name
         if doc:
@@ -52,11 +46,6 @@ class Deploy(Task):
         self.pkgtool = None
         self.cfgtool = None
         self.ca = None
-        self.defaults = self._load_defaults()
-
-    def _load_defaults(self):
-        with open("etc/defaults.yaml", "rb") as f:
-            return yaml.safe_load(f)
 
     def pre_install(self):
         pass
@@ -94,60 +83,38 @@ class Deploy(Task):
 
     def run(self,
             installation_type,
-            log_location=None,
-            repository_url=None,
-            epel_release=None,
-            umd_release=None,
-            yaim_config_path="etc/yaim/"):
-        """Runs base deployment.
+            **kwargs):
+        """Takes over base deployment.
 
-        Command-line parameters:
+        Arguments:
             installation_type
                 Type of installation: 'install' (from scratch) or 'update'.
-            os
-                Tag indicating the operating system.
+
+        Keyword arguments (optional, takes default from etc/defaults.yaml):
             repository_url
                 Repository path with the verification content.
-            epel_release (optional)
+            epel_release
                 Package URL with the EPEL release.
-            umd_release (optional)
+            umd_release
                 Package URL with the UMD release.
-            yaim_config_path (optional)
+            igtf_repo
+                Repository for the IGTF release.
+            yaim_path
                 Path pointing to YAIM configuration files.
+            log_path
+                Path to store logs produced during the execution.
         """
+        # Update configuration
+        CFG.update(kwargs)
+
         # Packaging tool
         self.pkgtool = inst_utils.PkgTool()
-
-        # Input parameters
-        config = {
-            "base": {"log_location": log_location},
-            "epel_release": {
-                ''.join([self.pkgtool.distname,
-                         self.pkgtool.major_version]): epel_release,
-            }
-        }
-        print ">>>>> ", config
-        import sys
-        sys.exit(0)
-        #    "umd_release":
-
-        #                    umd_release:
-        #                        redhat5: "http://repository.egi.eu/sw/production/umd/3/sl5/x86_64/updates/umd-release-3.0.1-1.el5.noarch.rpm"
-        #                            redhat6: "http://repository.egi.eu/sw/production/umd/3/sl6/x86_64/updates/umd-release-3.0.1-1.el6.noarch.rpm"
-
-        #                            igtf_repo:
-        #                                redhat: "http://repository.egi.eu/sw/production/cas/1/current/repo-files/EGI-trustanchors.repo"
-        #                                    debian: "http://repository.egi.eu/sw/production/cas/1/current/repo-files/egi-trustanchors.list"
-
-        #                                    yaim:
-        #                                        path: "etc/yaim"
-        #}
 
         # Configuration tool
         if self.nodetype and self.siteinfo:
             self.cfgtool = YaimConfig(self.nodetype,
                                       self.siteinfo,
-                                      yaim_config_path,
+                                      CFG["yaim_path"],
                                       pre_config=self.pre_config,
                                       post_config=self.post_config)
         else:
@@ -157,7 +124,7 @@ class Deploy(Task):
         if self.need_cert:
             self.pkgtool.install(
                 pkgs="ca-policy-egi-core",
-                repofile=self.defaults["igtf_repo"][self.pkgtool.distname])
+                repofile=CFG["igtf_repo"])
             self.ca = utils.OwnCA(
                 domain_comp_country="es",
                 domain_comp="UMDverification",
@@ -167,13 +134,15 @@ class Deploy(Task):
         # QC_INST, QC_UPGRADE
         self.pre_install()
         self._install(installation_type,
-                      epel_release,
-                      umd_release,
-                      repository_url=repository_url)
+                      CFG["epel_release"],
+                      CFG["umd_release"],
+                      repository_url=CFG["repository_url"])
         self.post_install()
 
         # QC_SEC
         self._security()
+        import sys
+        sys.exit(0)
 
         # QC_INFO
         self._infomodel()
