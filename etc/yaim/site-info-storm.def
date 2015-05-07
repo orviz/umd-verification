@@ -1,5 +1,6 @@
 source site-info-common.def
 
+JAVA_HOME="/usr/lib/jvm/java"
 
 NTP_HOSTS_IP=130.206.3.166
 
