@@ -1,0 +1,53 @@
+source site-info-common.def
+
+NAGIOS_HOST=`hostname -f`
+SITE_BDII_HOST=`hostname -f`
+
+NCG_TOPOLOGY_USE_LDAP="true"
+NCG_TOPOLOGY_USE_ATP="false"
+
+DB_TYPE=mysql
+DB_USER=mrs
+DB_NAME=mrs
+DB_PASS=$MYSQL_PASSWORD
+
+NAGIOS_ADMIN_DNS="/DC=es/DC=irisgrid/O=ifca/CN=pablo-orviz"
+NCG_NAGIOS_ADMIN="orviz@ifca.unican.es"
+NAGIOS_ROLE="site"
+NAGIOS_NSCA_PASS="nagiosUMDsql"
+NCG_PROBES_TYPE=local
+COUNTRY_NAME=Spain
+NCG_VO="ops.vo.ibergrid.eu"
+VO_OPS_NCG_DEFAULT_VO_FQAN="ops.vo.ibergrid.eu"
+NAGIOS_NAGIOS_ENABLE_CONFIG="true"
+NAGIOS_NCG_ENABLE_CONFIG="true"
+NCG_GOCDB_ROC_NAME="NGI_IBERGRID"
+
+NCG_LDAP_ADD_HOSTS=1
+
+#ATP_ROOT_URL="https://mon.egi.eu/atp"
+#POEM_SYNC_URLS="http://mon.egi.eu/poem/api/0.1/json/"
+#ATP_SYNC_TIMEOUT=1200
+
+NCG_PROFILE_FQAN_GLEXEC=/ops.vo.ibergrid.eu/Role=NULL
+NCG_USE_ROBOT_CERT=false
+NCG_ENABLE_NOTIFICATIONS=0
+NCG_TIMEOUT=1234
+NCG_REMOTE_USE_NAGIOS=false
+NCG_REMOTE_USE_SAM=false
+
+NAGIOS_SUDO_ENABLE_CONFIG=true
+NAGIOS_HTTPD_ENABLE_CONFIG=true
+NAGIOS_NCG_ENABLE_CONFIG=true
+NAGIOS_NAGIOS_ENABLE_CONFIG=true
+NAGIOS_CGI_ENABLE_CONFIG=true
+
+NAGIOS_DB_HOST=`hostname -f`
+NAGIOS_DB_USER=nagiosdb
+NAGIOS_DB_PASS=nagiosUMDsql
+
+# need a production one to get broker list /etc/broker-cache-file.conf 
+BDII_HOST=gridii01.ifca.es
+
+# wtf
+MYSQL_ADMIN=$MYSQL_PASSWORD

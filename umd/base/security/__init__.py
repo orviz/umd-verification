@@ -23,13 +23,13 @@ class Security(object):
                            key_pub="/etc/grid-security/hostcert.pem")
 
         r = self.cfgtool.run(qc_step)
-        if r.failed:
+        if r and r.failed:
             qc_step.print_result("FAIL",
-                                 "YAIM configuration failed with SHA-2 certs.",
+                                 "Configuration failed using SHA-2 certs.",
                                  do_abort=True)
         else:
             qc_step.print_result("OK",
-                                 "Product services can manage SHA-2 certs.")
+                                 "Product can manage SHA-2 certs.")
 
     def qc_sec_5(self, **kwargs):
         """World Writable Files check.

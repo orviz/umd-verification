@@ -138,21 +138,21 @@ class Deploy(Task):
             self.ca.create(trusted_ca_dir="/etc/grid-security/certificates")
 
         # QC_INST, QC_UPGRADE
-        self.pre_install()
-        self._install(installation_type,
-                      CFG["epel_release"],
-                      CFG["umd_release"],
-                      repository_url=CFG["repository_url"])
-        self.post_install()
+        #self.pre_install()
+        #self._install(installation_type,
+        #              CFG["epel_release"],
+        #              CFG["umd_release"],
+        #              repository_url=CFG["repository_url"])
+        #self.post_install()
 
         # QC_SEC
         self._security()
 
-        # QC_INFO
-        self._infomodel()
+        ## QC_INFO
+        #self._infomodel()
 
-        # QC_FUNC
-        qc_envvars = self._get_qc_envvars(kwargs)
-        self.pre_validate()
-        self._validate(qc_envvars)
-        self.post_validate()
+        ## QC_FUNC
+        #qc_envvars = self._get_qc_envvars(kwargs)
+        #self.pre_validate()
+        #self._validate(qc_envvars)
+        #self.post_validate()

@@ -1,0 +1,11 @@
+[slf5x]
+exclude=mysql*
+name=SL 5 other
+baseurl=http://ftp.scientificlinux.org/linux/slf5x/$basearch/SL/
+#mirrorlist=ftp://ftp.scientificlinux.org/linux/scientific/mirrorlist/sl-base-55.txt
+enabled=1
+gpgcheck=0
+# To use priorities you must have yum-priorities installed
+priority=10
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-sl file:///etc/pki/rpm-gpg/RPM-GPG-KEY-sl5 file:///etc/pki/rpm-gpg/RPM-GPG-KEY-csieh file:///etc/pki/rpm-gpg/RPM-GPG-KEY-dawson file:///etc/pki/rpm-gpg/RPM-GPG-KEY-jpolok file:///etc/pki/rpm-gpg/RPM-GPG-KEY-cern file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
+

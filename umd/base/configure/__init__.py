@@ -5,6 +5,7 @@ from fabric.context_managers import lcd
 
 from umd.api import fail
 from umd.api import info
+from umd.api import runcmd
 from umd.base import utils as butils
 from umd import exception
 

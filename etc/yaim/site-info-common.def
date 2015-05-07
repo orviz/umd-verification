@@ -17,6 +17,7 @@ SE_MOUNT_INFO_LIST="$SE_HOST:export_dir1,mount_dir1"
 VOS="dteam ops ops.vo.ibergrid.eu"
 QUEUES="dteam ops iberops"
 
+MYSQL_ADMIN=root
 MYSQL_PASSWORD=mysql.change.me
 
 VO_SW_DIR="/opt/exp_soft"
@@ -24,3 +25,17 @@ VO_SW_DIR="/opt/exp_soft"
 DTEAM_GROUP_ENABLE="dteam"
 OPS_GROUP_ENABLE="ops"
 IBEROPS_GROUP_ENABLE="ops.vo.ibergrid.eu"
+
+SITE_DESC="UMD Verification Testbed"
+SITE_EMAIL="hermanos.izquierdo@example.org"
+SITE_LOC="Puerto Hurraco, Spain"
+SITE_LAT=38.6333
+SITE_LONG=-5.55
+SITE_WEB="http://es.wikipedia.org/wiki/Puerto_Hurraco"
+SITE_SECURITY_EMAIL="hermanos.izquierdo@example.org"
+SITE_SUPPORT_EMAIL="hermanos.izquierdo@example.org"
+SITE_OTHER_GRID="WLCG|EGI"
+SITE_OTHER_EGI_NGI=NGI_IBERGRID
+
+BDII_REGIONS="SITEBDII"
+BDII_SITEBDII_URL="ldap://localhost:2170/mds-vo-name=resource,o=grid"

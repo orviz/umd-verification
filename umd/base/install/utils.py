@@ -1,11 +1,12 @@
 import os.path
 
 from umd.api import runcmd
+from umd.base import utils as butils
 from umd import exception
 from umd import system
 
 
-def yum(action, pkgs=None):
+def yum(action, pkgs=None, logfile=None):
     if pkgs:
         r = runcmd("yum -y %s %s" % (action, " ".join(pkgs)))
     else:
@@ -29,18 +30,20 @@ class PkgTool(object):
     def get_path(self):
         return self.REPOPATH[system.distname]
 
-    def install(self, pkgs, repofile=None):
+    # FIXME(orviz) need to address logfiles some other way
+    def install(self, pkgs, repofile=None, logfile=None):
         if repofile:
             self._enable_repo(repofile)
-        return self._exec(action="install", pkgs=pkgs)
+        return self._exec(action="install", pkgs=pkgs, logfile=logfile)
 
-    def remove(self, pkgs):
-        return self._exec(action="remove", pkgs=pkgs)
+    def remove(self, pkgs, logfile=None):
+        return self._exec(action="remove", pkgs=pkgs, logfile=logfile)
 
-    def update(self):
-        return self._exec(action="update")
+    def update(self, logfile=None):
+        return self._exec(action="update", logfile=logfile)
 
-    def _exec(self, action, pkgs=None):
+    def _exec(self, action, pkgs=None, logfile=None):
+        pkgs = butils.to_list(pkgs)
         try:
             if pkgs:
                 return self.PKGTOOL[system.distname](action, pkgs)

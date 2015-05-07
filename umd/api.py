@@ -60,9 +60,9 @@ def runcmd(cmd, chdir=None, fail_check=True, logfile=None):
             logfile: file to log the command execution.
     """
     if chdir:
-        with lcd(chdir):
-            with settings(warn_only=True):
-                r = local(cmd, capture=True)
+        #with settings(warn_only=True):
+        #    with lcd(chdir):
+        return local(cmd, capture=True)
     else:
         with settings(warn_only=True):
             r = local(cmd, capture=True)
@@ -77,7 +77,7 @@ def runcmd(cmd, chdir=None, fail_check=True, logfile=None):
             if logs:
                 msg = ' '.join([msg, "See more information in logs (%s)."
                                      % ','.join(logs)])
-            abort(red(msg % cmd))
+            abort(fail(msg % cmd))
             # raise exception.ExecuteCommandException(("Error found while "
             #                                          "executing command: "
             #                                          "'%s' (Reason: %s)"
