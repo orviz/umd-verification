@@ -56,7 +56,7 @@ class InfoModel(object):
                     "GLUE2EndpointImplementationVersion",
                     "GLUE2EntityOtherInfo"])
 
-            to_file(info_utils.ldifize(ldap_result))
+            to_file(info_utils.ldifize(ldap_result), qc_step.logfile)
 
             for dn, attrs in ldap_result:
                 try:

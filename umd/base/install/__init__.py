@@ -98,9 +98,9 @@ class Install(object):
                      % self.metapkg)
 
             # 2) Enable verification repository
-	    if repository_url:
-		info("Verification repository provided.")
-            	self._enable_verification_repo(qc_step, repository_url)
+            if repository_url:
+                info("Verification repository provided.")
+                self._enable_verification_repo(qc_step, repository_url)
 
             # 3) Update
             r = self.pkgtool.update()
@@ -114,9 +114,9 @@ class Install(object):
                                      msg="System successfully updated.")
         elif installation_type == "install":
             # 1) Enable verification repository
-	    if repository_url:
-		info("Verification repository provided.")
-            	self._enable_verification_repo(qc_step, repository_url)
+            if repository_url:
+                info("Verification repository provided.")
+                self._enable_verification_repo(qc_step, repository_url)
 
             # 2) Install verification version
             r = self.pkgtool.install(self.metapkg)
