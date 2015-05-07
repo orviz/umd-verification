@@ -1,3 +1,4 @@
+import yaml
 
 from fabric.tasks import Task
 
@@ -51,6 +52,11 @@ class Deploy(Task):
         self.pkgtool = None
         self.cfgtool = None
         self.ca = None
+        self.defaults = self._load_defaults()
+
+    def _load_defaults(self):
+        with open("etc/defaults.yaml", "rb") as f:
+            return yaml.safe_load(f)
 
     def pre_install(self):
         pass
@@ -88,6 +94,7 @@ class Deploy(Task):
 
     def run(self,
             installation_type,
+            log_location=None,
             repository_url=None,
             epel_release=None,
             umd_release=None,
@@ -111,6 +118,31 @@ class Deploy(Task):
         # Packaging tool
         self.pkgtool = inst_utils.PkgTool()
 
+        # Input parameters
+        config = {
+            "base": {"log_location": log_location},
+            "epel_release": {
+                ''.join([self.pkgtool.distname,
+                         self.pkgtool.major_version]): epel_release,
+            }
+        }
+        print ">>>>> ", config
+        import sys
+        sys.exit(0)
+        #    "umd_release":
+
+        #                    umd_release:
+        #                        redhat5: "http://repository.egi.eu/sw/production/umd/3/sl5/x86_64/updates/umd-release-3.0.1-1.el5.noarch.rpm"
+        #                            redhat6: "http://repository.egi.eu/sw/production/umd/3/sl6/x86_64/updates/umd-release-3.0.1-1.el6.noarch.rpm"
+
+        #                            igtf_repo:
+        #                                redhat: "http://repository.egi.eu/sw/production/cas/1/current/repo-files/EGI-trustanchors.repo"
+        #                                    debian: "http://repository.egi.eu/sw/production/cas/1/current/repo-files/egi-trustanchors.list"
+
+        #                                    yaim:
+        #                                        path: "etc/yaim"
+        #}
+
         # Configuration tool
         if self.nodetype and self.siteinfo:
             self.cfgtool = YaimConfig(self.nodetype,
@@ -123,16 +155,9 @@ class Deploy(Task):
 
         # Certification Authority
         if self.need_cert:
-            # FIXME(orviz) Move to a central/base configuration file (yaml)
-            IGTF_REPOFILES = {
-                "redhat": ("http://repository.egi.eu/sw/production/cas/1/"
-                           "current/repo-files/EGI-trustanchors.repo"),
-                "debian": ("http://repository.egi.eu/sw/production/cas/1/"
-                           "current/repo-files/egi-trustanchors.list"),
-            }
             self.pkgtool.install(
                 pkgs="ca-policy-egi-core",
-                repofile=IGTF_REPOFILES[self.pkgtool.distname])
+                repofile=self.defaults["igtf_repo"][self.pkgtool.distname])
             self.ca = utils.OwnCA(
                 domain_comp_country="es",
                 domain_comp="UMDverification",
