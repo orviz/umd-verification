@@ -49,6 +49,7 @@ def runcmd(cmd, fail_check=True, logfile=None):
     with settings(warn_only=True):
         r = local(cmd, capture=True)
 
+    logs = []
     if logfile:
         logs = to_file(r, logfile)
 
