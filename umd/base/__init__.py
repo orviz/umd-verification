@@ -48,7 +48,6 @@ class Deploy(Task):
         self.siteinfo = siteinfo
         self.qc_specific_id = qc_specific_id
         self.exceptions = exceptions
-        self.os = None
         self.pkgtool = None
         self.cfgtool = None
         self.ca = None
@@ -89,7 +88,6 @@ class Deploy(Task):
 
     def run(self,
             installation_type,
-            os,
             repository_url=None,
             epel_release=None,
             umd_release=None,
@@ -110,10 +108,8 @@ class Deploy(Task):
             yaim_config_path (optional)
                 Path pointing to YAIM configuration files.
         """
-        self.os = os
-
         # Packaging tool
-        self.pkgtool = inst_utils.PkgTool(self.os)
+        self.pkgtool = inst_utils.PkgTool()
 
         # Configuration tool
         if self.nodetype and self.siteinfo:
@@ -129,13 +125,14 @@ class Deploy(Task):
         if self.need_cert:
             # FIXME(orviz) Move to a central/base configuration file (yaml)
             IGTF_REPOFILES = {
-                "sl5": ("http://repository.egi.eu/sw/production/cas/1/current/"
-                        "repo-files/EGI-trustanchors.repo"),
-                "sl6": ("http://repository.egi.eu/sw/production/cas/1/current/"
-                        "repo-files/EGI-trustanchors.repo"),
+                "redhat": ("http://repository.egi.eu/sw/production/cas/1/"
+                           "current/repo-files/EGI-trustanchors.repo"),
+                "debian": ("http://repository.egi.eu/sw/production/cas/1/"
+                           "current/repo-files/egi-trustanchors.list"),
             }
-            self.pkgtool.install(pkgs="ca-policy-egi-core",
-                                 repofile=IGTF_REPOFILES[self.os])
+            self.pkgtool.install(
+                pkgs="ca-policy-egi-core",
+                repofile=IGTF_REPOFILES[self.pkgtool.distname])
             self.ca = utils.OwnCA(
                 domain_comp_country="es",
                 domain_comp="UMDverification",
