@@ -90,7 +90,7 @@ class Deploy(Task):
     def run(self,
             installation_type,
             os,
-            repository_url,
+            repository_url=None,
             epel_release=None,
             umd_release=None,
             yaim_config_path="etc/yaim/"):
@@ -145,9 +145,9 @@ class Deploy(Task):
         # QC_INST, QC_UPGRADE
         self.pre_install()
         self._install(installation_type,
-                      repository_url,
                       epel_release,
-                      umd_release)
+                      umd_release,
+                      repository_url=repository_url)
         self.post_install()
 
         # QC_SEC

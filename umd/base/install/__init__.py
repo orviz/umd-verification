@@ -34,19 +34,19 @@ class Install(object):
 
     def run(self,
             installation_type,
-            repository_url,
             epel_release_url,
             umd_release_url,
-            *args, **kwargs):
+            repository_url=None,
+            **kwargs):
         """Runs UMD installation.
 
            Arguments::
                 installation_type: install from scratch ('install') or
                                    update ('update')
-                repository_url: base repository URL
-                                (with the verification stuff).
                 epel_release_url: EPEL release (URL).
                 umd_release_url : UMD release (URL).
+                repository_url: base repository URL
+                                (with the verification stuff).
         """
         if installation_type == "update":
             qc_step = QCStep("QC_UPGRADE_1", "Upgrade", "/tmp/qc_upgrade_1")
@@ -98,7 +98,9 @@ class Install(object):
                      % self.metapkg)
 
             # 2) Enable verification repository
-            self._enable_verification_repo(qc_step, repository_url)
+	    if repository_url:
+		info("Verification repository provided.")
+            	self._enable_verification_repo(qc_step, repository_url)
 
             # 3) Update
             r = self.pkgtool.update()
@@ -112,7 +114,9 @@ class Install(object):
                                      msg="System successfully updated.")
         elif installation_type == "install":
             # 1) Enable verification repository
-            self._enable_verification_repo(qc_step, repository_url)
+	    if repository_url:
+		info("Verification repository provided.")
+            	self._enable_verification_repo(qc_step, repository_url)
 
             # 2) Install verification version
             r = self.pkgtool.install(self.metapkg)
