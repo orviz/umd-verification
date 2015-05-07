@@ -42,13 +42,13 @@ class Validate(object):
         """Returns a list of 4-item (description, user, filename, args)
            tuples."""
         l = []
-        for checkpath, checkdata in config.items():
+        for checkdata in config:
             d = collections.defaultdict(str)
             for k, v in checkdata.items():
                 d[k] = v
             l.append((d["description"],
                       d["user"],
-                      checkpath,
+                      d["test"],
                       d["args"]))
 
         checklist = []
