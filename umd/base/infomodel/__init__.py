@@ -9,7 +9,7 @@ from umd import exception
 class InfoModel(object):
     def __init__(self, pkgtool):
         pkgtool.install(pkgs="glue-validator")
-        if pkgtool.os == "sl5":
+        if pkgtool.distname == "redhat" and pkgtool.version_major == "5":
             pkgtool.install(pkgs="openldap-clients")
 
     def _run_validator(self, qc_step, glue_version):
