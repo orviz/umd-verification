@@ -4,8 +4,9 @@ import os
 import pwd
 import yaml
 
-from fabric.api import puts
-
+from umd.api import fail
+from umd.api import info
+from umd.api import ok
 from umd.base.utils import QCStep
 
 
@@ -66,7 +67,7 @@ class Validate(object):
         failed_checks = []
         for check in self._get_checklist(config):
             description, user, f, args = check
-            qc_step.userprint("Probe '%s'" % description)
+            info("Probe '%s'" % description)
 
             cmd = "./%s" % " ".join([f, args])
             if user:
@@ -84,11 +85,11 @@ class Validate(object):
                 result = r
 
             if cmd_failed:
-                qc_step.userprint("Command '%s' failed: %s" % (cmd, result))
+                fail("Command '%s' failed: %s" % (cmd, result))
                 failed_checks.append(cmd)
             else:
-                qc_step.userprint("Command '%s' ended OK with result: %s"
-                                  % (cmd, result))
+                ok("Command '%s' ended OK with result: %s"
+                   % (cmd, result))
         return failed_checks
 
     def qc_func_1(self, config):
@@ -138,7 +139,7 @@ class Validate(object):
                     try:
                         d[qc_specific_id]
                     except KeyError:
-                        puts("[INFO] QC-specific ID '%s' definition not found "
+                        info("QC-specific ID '%s' definition not found "
                              "in configuration file '%s'"
                              % (qc_specific_id, QC_SPECIFIC_FILE))
 
@@ -149,8 +150,8 @@ class Validate(object):
                     self.qc_func_1(config["qc_func_1"])
                     self.qc_func_2(config["qc_func_2"])
             except IOError:
-                puts("[INFO] Could not load QC-specific config file: %s"
+                info("Could not load QC-specific config file: %s"
                      % QC_SPECIFIC_FILE)
         else:
-            puts(("[INFO] No QC-specific ID provided: no specific QC probes "
+            info(("No QC-specific ID provided: no specific QC probes "
                   "will be ran."))

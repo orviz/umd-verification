@@ -3,14 +3,13 @@ import os.path
 import socket
 
 from fabric.api import abort
-from fabric.api import local
-from fabric.api import puts
 from fabric.colors import blue
 from fabric.colors import green
 from fabric.colors import red
 from fabric.colors import yellow
 from fabric.context_managers import lcd
 
+from umd.api import info
 from umd.api import runcmd
 from umd import exception
 
@@ -88,19 +87,18 @@ class OwnCA(object):
                                 signing policy file under the trusted CA
                                 directory.
         """
-        local("mkdir -p %s" % self.workspace)
+        runcmd("mkdir -p %s" % self.workspace)
         with lcd(self.workspace):
             subject = "/DC=%s/DC=%s/CN=%s" % (self.domain_comp_country,
                                               self.domain_comp,
                                               self.common_name)
-            local(("openssl req -x509 -nodes -days 1 -newkey rsa:2048 "
-                   "-out ca.pem -outform PEM -keyout ca.key -subj "
-                   "'%s'" % subject))
+            runcmd(("openssl req -x509 -nodes -days 1 -newkey rsa:2048 "
+                    "-out ca.pem -outform PEM -keyout ca.key -subj "
+                    "'%s'" % subject))
             if trusted_ca_dir:
-                hash = local("openssl x509 -noout -hash -in ca.pem",
-                             capture=True)
-                local("cp ca.pem %s" % os.path.join(trusted_ca_dir,
-                                                    '.'.join([hash, '0'])))
+                hash = runcmd("openssl x509 -noout -hash -in ca.pem")
+                runcmd("cp ca.pem %s" % os.path.join(trusted_ca_dir,
+                                                     '.'.join([hash, '0'])))
                 with open(os.path.join(
                     trusted_ca_dir,
                     '.'.join([hash, "signing_policy"])), 'w') as f:
@@ -123,18 +121,18 @@ class OwnCA(object):
                 key_pub: Alternate path to store the certificate's public key.
         """
         with lcd(self.workspace):
-            local(("openssl req -newkey rsa:%s -nodes -sha1 -keyout "
-                   "cert.key -keyform PEM -out cert.req -outform PEM "
-                   "-subj '/DC=%s/DC=%s/CN=%s'" % (hash,
-                                                   self.domain_comp_country,
-                                                   self.domain_comp,
-                                                   hostname)))
-            local(("openssl x509 -req -in cert.req -CA ca.pem -CAkey ca.key "
-                   "-CAcreateserial -out cert.crt -days 1"))
+            runcmd(("openssl req -newkey rsa:%s -nodes -sha1 -keyout "
+                    "cert.key -keyform PEM -out cert.req -outform PEM "
+                    "-subj '/DC=%s/DC=%s/CN=%s'" % (hash,
+                                                    self.domain_comp_country,
+                                                    self.domain_comp,
+                                                    hostname)))
+            runcmd(("openssl x509 -req -in cert.req -CA ca.pem -CAkey ca.key "
+                    "-CAcreateserial -out cert.crt -days 1"))
 
             if key_prv:
-                local("cp cert.key %s" % key_prv)
-                puts("[INFO] Private key stored in '%s'." % key_prv)
+                runcmd("cp cert.key %s" % key_prv)
+                info("Private key stored in '%s'." % key_prv)
             if key_pub:
-                local("cp cert.crt %s" % key_pub)
-                puts("[INFO] Public key stored in '%s'." % key_pub)
+                runcmd("cp cert.crt %s" % key_pub)
+                info("Public key stored in '%s'." % key_pub)
