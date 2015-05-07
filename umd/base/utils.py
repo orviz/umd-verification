@@ -5,13 +5,13 @@ import socket
 from fabric.api import abort
 from fabric.api import local
 from fabric.api import puts
-from fabric.api import settings
 from fabric.colors import blue
 from fabric.colors import green
 from fabric.colors import red
 from fabric.colors import yellow
 from fabric.context_managers import lcd
 
+from umd.api import runcmd
 from umd import exception
 
 
@@ -45,10 +45,6 @@ class QCStep(object):
             if os.path.exists(_fname):
                 os.remove(_fname)
 
-    def userprint(self, msg):
-        """Prints info/debug logs."""
-        puts("[INFO] %s" % msg)
-
     def print_result(self, level, msg, do_abort=False):
         """Prints the final result of the current QC step."""
         level_color = {
@@ -64,47 +60,13 @@ class QCStep(object):
         else:
             print(msg)
 
-    def to_file(self, r):
-        """Writes Fabric capture result to the given file."""
-        def _write(fname, msg):
-            with open(fname, 'a') as f:
-                f.write(msg)
-                f.flush()
-        l = []
-        if isinstance(r, str):  # exception
-            _fname = '.'.join([self.logfile, "stdout"])
-            _write(_fname, r)
-            l.append(_fname)
-        else:
-            if r.stdout:
-                _fname = '.'.join([self.logfile, "stdout"])
-                _write(_fname, r.stdout)
-                l.append(_fname)
-            if r.stderr:
-                _fname = '.'.join([self.logfile, "stderr"])
-                _write(_fname, r.stderr)
-                l.append(_fname)
-
-        return l
-
     def runcmd(self, cmd, fail_check=True, log_to_file=True):
-        with settings(warn_only=True):
-            r = local(cmd, capture=True)
-
+        logfile = None
         if log_to_file:
-            logs = self.to_file(r)
+            logfile = self.logfile
 
-        if fail_check:
-            if r.failed:
-                msg = "Error while executing command '%s'."
-                if logs:
-                    msg = ' '.join([msg, "See more information in logs (%s)."
-                                         % ','.join(logs)])
-                abort(red(msg % cmd))
-                #raise exception.ExecuteCommandException(("Error found while "
-                #                                         "executing command: "
-                #                                         "'%s' (Reason: %s)"
-                #                                         % (cmd, r.stderr)))
+        r = runcmd(cmd, fail_check=fail_check, logfile=logfile)
+
         return r
 
 
