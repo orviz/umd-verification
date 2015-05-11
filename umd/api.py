@@ -1,9 +1,9 @@
-
 from fabric.api import abort
 from fabric.api import local
 from fabric.api import puts
 from fabric.api import settings
 from fabric.colors import red
+from fabric.context_managers import lcd
 
 
 def to_file(r, logfile):
