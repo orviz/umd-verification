@@ -1,11 +1,7 @@
-
-from fabric.context_managers import lcd
-# from fabric.context_managers import prefix
-
 import tempfile
 
 from umd.api import info
-from umd.base import utils as base_utils
+from umd.base import utils as butils
 
 
 class YaimConfig(object):
@@ -24,8 +20,8 @@ class YaimConfig(object):
     def run(self, qc_step):
         self.pre_config()
 
-        self.nodetype = base_utils.to_list(self.nodetype)
-        self.siteinfo = base_utils.to_list(self.siteinfo)
+        self.nodetype = butils.to_list(self.nodetype)
+        self.siteinfo = butils.to_list(self.siteinfo)
 
         with tempfile.NamedTemporaryFile("w+t",
                                          dir=self.config_path,
@@ -41,12 +37,10 @@ class YaimConfig(object):
                 info(("Creating temporary file '%s' with "
                       "content: %s" % (f.name, r)))
 
-            with lcd(self.config_path):
-                # FIXME(orviz): this is not supported on SL6(?)
-                # with prefix("source %s" % f.name):
-                r = qc_step.runcmd("/opt/glite/yaim/bin/yaim -c -s %s -n %s"
-                                   % (f.name, " -n ".join(self.nodetype)),
-                                   fail_check=False)
+            r = qc_step.runcmd("/opt/glite/yaim/bin/yaim -c -s %s -n %s"
+                               % (f.name, " -n ".join(self.nodetype)),
+                               chdir=self.config_path,
+                               fail_check=False)
 
         self.post_config()
 
