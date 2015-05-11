@@ -45,9 +45,21 @@ def ok(msg):
     puts("[OK] %s" % msg)
 
 
-def runcmd(cmd, fail_check=True, logfile=None):
-    with settings(warn_only=True):
-        r = local(cmd, capture=True)
+def runcmd(cmd, chdir=None, fail_check=True, logfile=None):
+    """Runs a generic command.
+            cmd: command to execute.
+            chdir: local directory to run the command from.
+            fail_check: boolean that indicates if the workflow must be
+                interrupted in case of failure.
+            logfile: file to log the command execution.
+    """
+    if chdir:
+        with lcd(chdir):
+            with settings(warn_only=True):
+                r = local(cmd, capture=True)
+    else:
+        with settings(warn_only=True):
+            r = local(cmd, capture=True)
 
     logs = []
     if logfile:
