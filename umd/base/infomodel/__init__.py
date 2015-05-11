@@ -1,8 +1,10 @@
 import ldap
+import os.path
 
 from umd.api import to_file
 from umd.base.infomodel import utils as info_utils
 from umd.base.utils import QCStep
+from umd.config import CFG
 from umd import exception
 
 
@@ -82,21 +84,21 @@ class InfoModel(object):
         """GlueSchema 1.3 Support."""
         qc_step = QCStep("QC_INFO_1",
                          "GlueSchema 1.3 Support",
-                         "/tmp/qc_info_1")
+                         os.path.join(CFG["log_path"], "qc_info_1"))
         self._run_validator(qc_step, "glue1")
 
     def qc_info_2(self):
         """GlueSchema 2.0 Support."""
         qc_step = QCStep("QC_INFO_2",
                          "GlueSchema 2.0 Support",
-                         "/tmp/qc_info_2")
+                         os.path.join(CFG["log_path"], "qc_info_2"))
         self._run_validator(qc_step, "glue2")
 
     def qc_info_3(self):
         """Middleware Version Information."""
         qc_step = QCStep("QC_INFO_3",
                          "Middleware Version Information",
-                         "/tmp/qc_info_3")
+                         os.path.join(CFG["log_path"], "qc_info_3"))
         r, msg = self._run_version_check(qc_step)
         if r:
             qc_step.print_result("OK", msg)

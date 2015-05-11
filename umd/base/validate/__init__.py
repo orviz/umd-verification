@@ -8,6 +8,7 @@ from umd.api import fail
 from umd.api import info
 from umd.api import ok
 from umd.base.utils import QCStep
+from umd.config import CFG
 
 
 QC_SPECIFIC_FILE = "etc/qc_specific.yaml"
@@ -96,7 +97,7 @@ class Validate(object):
         """Basic Funcionality Test."""
         qc_step = QCStep("QC_FUNC_1",
                          "Basic Funcionality Test.",
-                         "/tmp/qc_func_1")
+                         os.path.join(CFG["log_path"], "qc_func_1"))
 
         if config:
             failed_checks = self._run_checks(qc_step, config)
@@ -116,7 +117,7 @@ class Validate(object):
         """New features/bug fixes testing."""
         qc_step = QCStep("QC_FUNC_2",
                          "New features/bug fixes testing.",
-                         "/tmp/qc_func_2")
+                         os.path.join(CFG["log_path"], "qc_func_2"))
 
         if config:
             failed_checks = self._run_checks(qc_step, config)

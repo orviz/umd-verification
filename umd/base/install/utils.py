@@ -1,17 +1,15 @@
 import os.path
-import platform
 
-from fabric.api import local
-
-from umd.base import utils as base_utils
+from umd.api import runcmd
 from umd import exception
+from umd import system
 
 
 def yum(action, pkgs=None):
     if pkgs:
-        r = local("yum -y %s %s" % (action, " ".join(pkgs)), capture=True)
+        r = runcmd("yum -y %s %s" % (action, " ".join(pkgs)))
     else:
-        r = local("yum -y %s" % action, capture=True)
+        r = runcmd("yum -y %s" % action)
     return r
 
 
@@ -23,25 +21,13 @@ class PkgTool(object):
         "redhat": "/etc/yum.repos.d/",
     }
 
-    def __init__(self):
-        self.distname, self.version_major = self._get_os()
-
-    def _get_os(self):
-        distname, version, distid = platform.dist()
-        # major version
-        version_major = version.split('.')[0]
-        if not version_major.isdigit():
-            raise exception.InstallException(("Could not get major OS version "
-                                              "for '%s'" % version))
-        return distname, version_major
-
     def _enable_repo(self, repofile):
-        local("wget %s -O %s" % (repofile,
-                                 os.path.join(self.REPOPATH[self.distname],
-                                              os.path.basename(repofile))))
+        runcmd("wget %s -O %s" % (repofile,
+                                  os.path.join(self.REPOPATH[system.distname],
+                                               os.path.basename(repofile))))
 
     def get_path(self):
-        return self.REPOPATH[self.distname]
+        return self.REPOPATH[system.distname]
 
     def install(self, pkgs, repofile=None):
         if repofile:
@@ -57,10 +43,9 @@ class PkgTool(object):
     def _exec(self, action, pkgs=None):
         try:
             if pkgs:
-                return self.PKGTOOL[self.distname](action,
-                                                   base_utils.to_list(pkgs))
+                return self.PKGTOOL[system.distname](action, pkgs)
             else:
-                return self.PKGTOOL[self.distname](action)
+                return self.PKGTOOL[system.distname](action)
         except KeyError:
             raise exception.InstallException("'%s' OS not supported"
-                                             % self.distname)
+                                             % system.distname)

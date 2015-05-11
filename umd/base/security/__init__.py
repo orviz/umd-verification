@@ -1,5 +1,8 @@
+import os.path
+
 from umd.base.security import utils as sec_utils
 from umd.base.utils import QCStep
+from umd.config import CFG
 
 
 class Security(object):
@@ -13,7 +16,7 @@ class Security(object):
         """SHA-2 Certificates Support."""
         qc_step = QCStep("QC_SEC_2",
                          "SHA-2 Certificates Support",
-                         "/tmp/qc_sec_2")
+                         os.path.join(CFG["log_path"], "qc_sec_2"))
 
         self.ca.issue_cert(hash="2048",
                            key_prv="/etc/grid-security/hostkey.pem",
@@ -35,7 +38,7 @@ class Security(object):
         """
         qc_step = QCStep("QC_SEC_5",
                          "World Writable Files",
-                         "/tmp/qc_sec_5")
+                         os.path.join(CFG["log_path"], "qc_sec_5"))
 
         r = qc_step.runcmd(("find / -not \\( -path \"/proc\" -prune \\) "
                             "-type f -perm -002 -exec ls -l {} \;"),
