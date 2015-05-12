@@ -42,9 +42,10 @@ class YaimConfig(object):
             info(("Creating temporary file '%s' with "
                   "content: %s" % (f.name, f.readlines())))
 
-            # NOTE(orviz) Cannot use 'capture=True': execution gets
+                        # NOTE(orviz) Cannot use 'capture=True': execution gets
             # stalled (defunct)
             with lcd(self.config_path):
+                abort_exception_default = env.abort_exception
                 env.abort_exception = exception.ConfigException
                 try:
                     local("/opt/glite/yaim/bin/yaim -c -s %s -n %s"
@@ -53,5 +54,6 @@ class YaimConfig(object):
                     fail(("YAIM execution failed. Check the logs at "
                           "'/opt/glite/yaim/log/yaimlog'."))
                 info("YAIM configuration ran successfully.")
+                env.abort_exception = abort_exception_default
 
         self.post_config()
