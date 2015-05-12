@@ -1,8 +1,10 @@
 import tempfile
 
 from fabric.api import local
+from fabric.api import settings
 from fabric.context_managers import lcd
 
+from umd.api import fail
 from umd.api import info
 from umd.base import utils as butils
 from umd import exception
@@ -43,8 +45,15 @@ class YaimConfig(object):
 
             # NOTE(orviz) Cannot use 'capture=True': execution gets
             # stalled (defunct)
+
             with lcd(self.config_path):
-                local("/opt/glite/yaim/bin/yaim -c -s %s -n %s"
-                      % (f.name, " -n ".join(self.nodetype)))
+                with settings(warn_only=True):
+                    r = local("/opt/glite/yaim/bin/yaim -c -s %s -n %s"
+                              % (f.name, " -n ".join(self.nodetype)))
+                    if r.failed:
+                        fail(("YAIM execution failed. Check the logs at "
+                              "'/opt/glite/yaim/log/yaimlog'."))
+                    else:
+                        info("YAIM configuration ran successfully.")
 
         self.post_config()
