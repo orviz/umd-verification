@@ -141,8 +141,6 @@ class Deploy(Task):
 
         # QC_SEC
         self._security()
-        import sys
-        sys.exit(0)
 
         # QC_INFO
         self._infomodel()
