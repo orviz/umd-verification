@@ -4,6 +4,8 @@ import os
 import pwd
 import yaml
 
+from fabric.api import shell_env
+
 from umd.api import fail
 from umd.api import info
 from umd.api import ok
@@ -15,6 +17,9 @@ QC_SPECIFIC_FILE = "etc/qc_specific.yaml"
 
 
 class Validate(object):
+    def __init__(self):
+        self.qc_envvars = None
+
     def _is_executable(self, f):
         """File executable check."""
         is_executable = False
@@ -81,9 +86,10 @@ class Validate(object):
                 cmd_failed = True
             else:
                 self._handle_user(qc_step, user)
-                r = qc_step.runcmd(cmd)
-                cmd_failed = r.failed
-                result = r
+                with shell_env(**self.qc_envvars):
+                    r = qc_step.runcmd(cmd)
+                    cmd_failed = r.failed
+                    result = r
 
             if cmd_failed:
                 fail("Command '%s' failed: %s" % (cmd, result))
@@ -132,27 +138,30 @@ class Validate(object):
             qc_step.print_result("OK",
                                  "No definition found for QC_FUNC_2.")
 
-    def run(self, qc_specific_id):
+    def run(self, qc_specific_id, qc_envvars=None):
         if qc_specific_id:
             try:
                 with open(QC_SPECIFIC_FILE) as f:
                     d = yaml.load(f)
-                    try:
-                        d[qc_specific_id]
-                    except KeyError:
-                        info("QC-specific ID '%s' definition not found "
-                             "in configuration file '%s'"
-                             % (qc_specific_id, QC_SPECIFIC_FILE))
-
-                    config = collections.defaultdict(dict)
-                    for k, v in d[qc_specific_id].items():
-                        config[k] = v
-
-                    self.qc_func_1(config["qc_func_1"])
-                    self.qc_func_2(config["qc_func_2"])
             except IOError:
                 info("Could not load QC-specific config file: %s"
                      % QC_SPECIFIC_FILE)
+            try:
+                d[qc_specific_id]
+            except KeyError:
+                info("QC-specific ID '%s' definition not found "
+                     "in configuration file '%s'"
+                     % (qc_specific_id, QC_SPECIFIC_FILE))
+
+            config = collections.defaultdict(dict)
+            for k, v in d[qc_specific_id].items():
+                config[k] = v
+
+            if qc_envvars:
+                self.qc_envvars = qc_envvars
+
+            self.qc_func_1(config["qc_func_1"])
+            self.qc_func_2(config["qc_func_2"])
         else:
             info(("No QC-specific ID provided: no specific QC probes "
                   "will be ran."))
