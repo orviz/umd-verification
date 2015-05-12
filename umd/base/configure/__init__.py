@@ -1,7 +1,11 @@
 import tempfile
 
+from fabric.api import local
+from fabric.context_managers import lcd
+
 from umd.api import info
 from umd.base import utils as butils
+from umd import exception
 
 
 class YaimConfig(object):
@@ -23,6 +27,10 @@ class YaimConfig(object):
         self.nodetype = butils.to_list(self.nodetype)
         self.siteinfo = butils.to_list(self.siteinfo)
 
+        if not self.nodetype or not self.siteinfo:
+            raise exception.ConfigException(("Could not run YAIM: Bad "
+                                             "nodetype or site-info."))
+
         with tempfile.NamedTemporaryFile("w+t",
                                          dir=self.config_path,
                                          delete=True) as f:
@@ -30,18 +38,13 @@ class YaimConfig(object):
                 f.write("source %s\n" % si)
             f.flush()
 
-            r = qc_step.runcmd("cat %s" % f.name,
-                               fail_check=False,
-                               log_to_file=False)
-            if r:
-                info(("Creating temporary file '%s' with "
-                      "content: %s" % (f.name, r)))
+            info(("Creating temporary file '%s' with "
+                  "content: %s" % (f.name, f.readlines())))
 
-            r = qc_step.runcmd("/opt/glite/yaim/bin/yaim -c -s %s -n %s"
-                               % (f.name, " -n ".join(self.nodetype)),
-                               chdir=self.config_path,
-                               fail_check=False)
+            # NOTE(orviz) Cannot use 'capture=True': execution gets
+            # stalled (defunct)
+            with lcd(self.config_path):
+                local("/opt/glite/yaim/bin/yaim -c -s %s -n %s"
+                      % (f.name, " -n ".join(self.nodetype)))
 
         self.post_config()
-
-        return r
