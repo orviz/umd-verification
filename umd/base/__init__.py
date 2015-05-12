@@ -78,8 +78,12 @@ class Deploy(Task):
     def _infomodel(self, *args, **kwargs):
         InfoModel(self.pkgtool).run(*args, **kwargs)
 
-    def _validate(self):
-        Validate().run(self.qc_specific_id)
+    def _validate(self, *args, **kwargs):
+        Validate().run(self.qc_specific_id, *args, **kwargs)
+
+    def _get_qc_envvars(self, d):
+        return dict([(k.split("qcenv_")[1], v)
+                     for k, v in d.items() if k.startswith("qcenv")])
 
     def run(self,
             installation_type,
@@ -103,6 +107,8 @@ class Deploy(Task):
                 Path pointing to YAIM configuration files.
             log_path
                 Path to store logs produced during the execution.
+            qcenv_*
+                Pass environment variables needed by the QC specific checks.
         """
         # Update configuration
         CFG.update(kwargs)
@@ -146,6 +152,7 @@ class Deploy(Task):
         self._infomodel()
 
         # QC_FUNC
+        qc_envvars = self._get_qc_envvars(kwargs)
         self.pre_validate()
-        self._validate()
+        self._validate(qc_envvars)
         self.post_validate()
