@@ -6,9 +6,10 @@ from umd.config import CFG
 
 
 class Security(object):
-    def __init__(self, pkgtool, cfgtool, ca, exceptions):
+    def __init__(self, pkgtool, cfgtool, need_cert, ca, exceptions):
         self.pkgtool = pkgtool
         self.cfgtool = cfgtool
+        self.need_cert = need_cert
         self.ca = ca
         self.exceptions = exceptions
 
@@ -18,18 +19,21 @@ class Security(object):
                          "SHA-2 Certificates Support",
                          os.path.join(CFG["log_path"], "qc_sec_2"))
 
-        self.ca.issue_cert(hash="2048",
-                           key_prv="/etc/grid-security/hostkey.pem",
-                           key_pub="/etc/grid-security/hostcert.pem")
+        if self.need_cert:
+            self.ca.issue_cert(hash="2048",
+                               key_prv="/etc/grid-security/hostkey.pem",
+                               key_pub="/etc/grid-security/hostcert.pem")
 
-        r = self.cfgtool.run(qc_step)
-        if r.failed:
-            qc_step.print_result("FAIL",
-                                 "YAIM configuration failed with SHA-2 certs.",
-                                 do_abort=True)
+            r = self.cfgtool.run(qc_step)
+            if r.failed:
+                qc_step.print_result("FAIL",
+                                     "YAIM configuration failed with SHA-2 certs.",
+                                     do_abort=True)
+            else:
+                qc_step.print_result("OK",
+                                     "Product services can manage SHA-2 certs.")
         else:
-            qc_step.print_result("OK",
-                                 "Product services can manage SHA-2 certs.")
+            qc_step.print_result("NA", "Product does not need certificates.")
 
     def qc_sec_5(self, **kwargs):
         """World Writable Files check.

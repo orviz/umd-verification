@@ -48,6 +48,7 @@ class QCStep(object):
         """Prints the final result of the current QC step."""
         level_color = {
             "FAIL": red,
+            "NA": green,
             "OK": green,
             "WARNING": yellow,
         }

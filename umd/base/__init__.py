@@ -72,6 +72,7 @@ class Deploy(Task):
     def _security(self, *args, **kwargs):
         Security(self.pkgtool,
                  self.cfgtool,
+                 self.need_cert,
                  self.ca,
                  self.exceptions).run(*args, **kwargs)
 
