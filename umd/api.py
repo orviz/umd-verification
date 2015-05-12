@@ -1,3 +1,5 @@
+import os
+
 from fabric.api import abort
 from fabric.api import local
 from fabric.api import puts
@@ -9,6 +11,10 @@ from fabric.context_managers import lcd
 def to_file(r, logfile):
     """Writes Fabric capture result to the given file."""
     def _write(fname, msg):
+        dirname = os.path.dirname(fname)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+            info("Log directory '%s' has been created.")
         with open(fname, 'a') as f:
             f.write(msg)
             f.flush()
