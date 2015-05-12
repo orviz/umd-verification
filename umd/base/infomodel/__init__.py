@@ -6,12 +6,13 @@ from umd.base.infomodel import utils as info_utils
 from umd.base.utils import QCStep
 from umd.config import CFG
 from umd import exception
+from umd import system
 
 
 class InfoModel(object):
     def __init__(self, pkgtool):
         pkgtool.install(pkgs="glue-validator")
-        if pkgtool.distname == "redhat" and pkgtool.version_major == "5":
+        if system.distro_version == "redhat5":
             pkgtool.install(pkgs="openldap-clients")
 
     def _run_validator(self, qc_step, glue_version):
