@@ -1,7 +1,11 @@
 import platform
+import socket
 
 from umd import exception
 
+
+# hostname
+fqdn = socket.getfqdn()
 
 distname, version, distid = platform.dist()
 

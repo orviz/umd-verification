@@ -1,6 +1,5 @@
 import os
 import os.path
-import socket
 
 from fabric.api import abort
 from fabric.colors import blue
@@ -12,6 +11,7 @@ from fabric.context_managers import lcd
 from umd.api import info
 from umd.api import runcmd
 from umd import exception
+from umd import system
 
 
 def to_list(obj):
@@ -111,7 +111,7 @@ class OwnCA(object):
                            self.domain_comp)])
 
     def issue_cert(self,
-                   hostname=socket.getfqdn(),
+                   hostname=system.fqdn,
                    hash="1024",
                    key_prv=None,
                    key_pub=None):
