@@ -11,7 +11,7 @@ from umd import system
 
 class InfoModel(object):
     def __init__(self, pkgtool):
-        pkgtool.install(pkgs="glue-validator")
+        pkgtool.install(pkgs=["glue-validator"])
         if system.distro_version == "redhat5":
             pkgtool.install(pkgs="openldap-clients")
 

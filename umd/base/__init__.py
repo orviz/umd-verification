@@ -130,7 +130,7 @@ class Deploy(Task):
         # Certification Authority
         if self.need_cert:
             self.pkgtool.install(
-                pkgs="ca-policy-egi-core",
+                pkgs=["ca-policy-egi-core"],
                 repofile=CFG["igtf_repo"])
             self.ca = utils.OwnCA(
                 domain_comp_country="es",
